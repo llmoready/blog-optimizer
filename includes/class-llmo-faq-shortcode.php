@@ -74,7 +74,7 @@ class LLMO_FAQ_Shortcode {
                     
                     <div class="llmo-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                         <div class="llmo-faq-question" itemprop="name">
-                            <i class="fas fa-chevron-right llmo-faq-icon"></i>
+                            <span class="dashicons dashicons-arrow-right-alt2 llmo-faq-icon"></span>
                             <?php echo esc_html($item['question']); ?>
                         </div>
                         <div class="llmo-faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">

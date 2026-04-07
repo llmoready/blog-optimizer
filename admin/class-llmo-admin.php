@@ -93,6 +93,19 @@ class LLMO_Blog_Optimizer_Admin {
             'llmo_blog_optimizer_api_section'
         );
         
+        register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_consent', array(
+            'type' => 'string',
+            'default' => '',
+        ));
+        
+        add_settings_field(
+            'llmo_blog_optimizer_consent',
+            __('Data Processing Consent', 'llmo-blog-optimizer'),
+            array($this, 'render_consent_field'),
+            'llmo-blog-optimizer',
+            'llmo_blog_optimizer_api_section'
+        );
+        
         add_settings_section(
             'llmo_blog_optimizer_general_section',
             __('General Settings', 'llmo-blog-optimizer'),
@@ -221,11 +234,8 @@ class LLMO_Blog_Optimizer_Admin {
      * Render API section
      */
     public function render_api_section() {
-        echo '<p>' . esc_html__('Enter your LLMO Ready API key to enable blog optimization.', 'llmo-blog-optimizer') . '</p>';
-        echo '<p>' . sprintf(
-            __('Get your API key from %s', 'llmo-blog-optimizer'),
-            '<a href="https://llmoready.com/dashboard" target="_blank">llmoready.com</a>'
-        ) . '</p>';
+        echo '<p>' . esc_html__('Configure your API connection and data processing consent.', 'llmo-blog-optimizer') . '</p>';
+        echo '<p>' . esc_html__('You must provide consent before any content is sent to our API for optimization.', 'llmo-blog-optimizer') . '</p>';
     }
     
     /**
@@ -244,6 +254,35 @@ class LLMO_Blog_Optimizer_Admin {
             <?php esc_html_e('Test Connection', 'llmo-blog-optimizer'); ?>
         </button>
         <span id="llmo-connection-status"></span>
+        <p class="description">
+            <?php printf(
+                esc_html__('Get your API key from %s', 'llmo-blog-optimizer'),
+                '<a href="https://llmoready.com/dashboard" target="_blank">llmoready.com</a>'
+            ); ?>
+        </p>
+        <?php
+    }
+    
+    /**
+     * Render consent field
+     */
+    public function render_consent_field() {
+        $consent = get_option('llmo_blog_optimizer_consent', '');
+        ?>
+        <label>
+            <input type="checkbox" 
+                   name="llmo_blog_optimizer_consent" 
+                   value="yes" 
+                   <?php checked($consent, 'yes'); ?>>
+            <?php esc_html_e('I consent to sending post content to LLMOReady.com for AI optimization', 'llmo-blog-optimizer'); ?>
+        </label>
+        <p class="description">
+            <?php printf(
+                esc_html__('By checking this box, you agree that your post content will be sent to our API for analysis and optimization. Please review our %1$s and %2$s for details on how we handle your data.', 'llmo-blog-optimizer'),
+                '<a href="https://llmoready.com/privacy" target="_blank">' . esc_html__('Privacy Policy', 'llmo-blog-optimizer') . '</a>',
+                '<a href="https://llmoready.com/terms" target="_blank">' . esc_html__('Terms of Use', 'llmo-blog-optimizer') . '</a>'
+            ); ?>
+        </p>
         <?php
     }
     

@@ -43,7 +43,23 @@ LLMO Blog Optimizer automatically enhances your blog posts for better visibility
 
 = Privacy & Data =
 
-This plugin sends your post content to the LLMO Ready API for analysis. No personal data is collected. See our [Privacy Policy](https://llmoready.com/privacy) for details.
+This plugin sends your post content to the LLMO Ready API for analysis and optimization. By using this plugin, you consent to this data processing.
+
+**What data is sent:**
+- Post title, content, and excerpt
+- Post author name
+- Publication date
+- Post URL
+
+**What we do NOT collect:**
+- Personal user information
+- Email addresses
+- IP addresses
+- Visitor data
+
+For complete details, please review:
+- [Privacy Policy](https://llmoready.com/privacy)
+- [Terms of Use](https://llmoready.com/terms)
 
 == Installation ==
 
@@ -129,10 +145,35 @@ For support, please visit:
 
 == Privacy Policy ==
 
-This plugin sends post content to the LLMO Ready API for analysis. The API:
-* Does not permanently store your content
-* Does not collect personal data
-* Is GDPR compliant
-* Uses HTTPS encryption
+This plugin sends post content to the LLMO Ready API for analysis and optimization.
 
-For more information, see our [Privacy Policy](https://llmoready.com/privacy).
+**User Consent:**
+You must explicitly consent to data processing in the plugin settings before any content is sent to our API.
+
+**Data Processing:**
+* Post content is sent via secure HTTPS connection
+* Content is analyzed by AI and optimization data is returned
+* We do not permanently store your post content
+* We do not collect personal user data
+* We do not track visitors to your site
+
+**GDPR Compliance:**
+This plugin is GDPR compliant. Users must opt-in via checkbox in settings.
+
+**What is sent:**
+* Post title, content, excerpt
+* Post author name (public information)
+* Publication date
+* Post URL
+
+**What is NOT sent:**
+* User email addresses
+* User passwords
+* IP addresses
+* Visitor tracking data
+* Any personal user information
+
+For complete details:
+* [Privacy Policy](https://llmoready.com/privacy)
+* [Terms of Use](https://llmoready.com/terms)
+* [API Documentation](https://docs.llmoready.com)

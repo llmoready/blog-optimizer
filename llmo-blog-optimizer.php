@@ -168,6 +168,11 @@ class LLMO_Blog_Optimizer {
             return new WP_Error('no_api_key', __('API key not configured', 'llmo-blog-optimizer'));
         }
         
+        $consent = get_option('llmo_blog_optimizer_consent');
+        if ($consent !== 'yes') {
+            return new WP_Error('no_consent', __('User consent required. Please enable data processing consent in plugin settings.', 'llmo-blog-optimizer'));
+        }
+        
         $post = get_post($post_id);
         if (!$post) {
             return new WP_Error('invalid_post', __('Invalid post ID', 'llmo-blog-optimizer'));
