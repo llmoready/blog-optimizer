@@ -47,24 +47,31 @@ class LLMO_Blog_Optimizer_Bulk {
         
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('Bulk Optimizer', 'llmo-blog-optimizer'); ?></h1>
+            <h1><?php esc_html_e('LLMO Blog Optimizer', 'llmo-blog-optimizer'); ?></h1>
             
-            <div class="llmo-bulk-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0;">
-                <div class="llmo-stat-card" style="background: #fff; padding: 20px; border-left: 4px solid #0073aa;">
-                    <h3 style="margin: 0 0 10px 0;"><?php esc_html_e('Total Posts', 'llmo-blog-optimizer'); ?></h3>
-                    <p style="font-size: 32px; margin: 0; font-weight: bold;"><?php echo esc_html($total_posts); ?></p>
-                </div>
-                <div class="llmo-stat-card" style="background: #fff; padding: 20px; border-left: 4px solid #46b450;">
-                    <h3 style="margin: 0 0 10px 0;"><?php esc_html_e('Optimized', 'llmo-blog-optimizer'); ?></h3>
-                    <p style="font-size: 32px; margin: 0; font-weight: bold; color: #46b450;"><?php echo esc_html($optimized_posts); ?></p>
-                </div>
-                <div class="llmo-stat-card" style="background: #fff; padding: 20px; border-left: 4px solid #ffb900;">
-                    <h3 style="margin: 0 0 10px 0;"><?php esc_html_e('Pending', 'llmo-blog-optimizer'); ?></h3>
-                    <p style="font-size: 32px; margin: 0; font-weight: bold; color: #ffb900;"><?php echo esc_html($pending_posts); ?></p>
-                </div>
+            <div class="notice notice-info">
+                <p><strong><?php esc_html_e('Status:', 'llmo-blog-optimizer'); ?></strong> <?php esc_html_e('Plugin is active and ready to optimize your blog posts.', 'llmo-blog-optimizer'); ?></p>
             </div>
             
-            <div class="llmo-bulk-actions" style="background: #fff; padding: 20px; margin: 20px 0;">
+            <div class="card">
+                <h2><?php esc_html_e('Statistics', 'llmo-blog-optimizer'); ?></h2>
+                <table class="widefat" style="width: auto; min-width: 500px;">
+                    <tr>
+                        <td style="width: 200px;"><strong><?php esc_html_e('Total Posts:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td><?php printf(esc_html__('%s posts', 'llmo-blog-optimizer'), esc_html($total_posts)); ?></td>
+                    </tr>
+                    <tr style="background: #e8f5e9;">
+                        <td><strong><?php esc_html_e('✓ Optimized Posts:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td><strong><?php printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($optimized_posts), esc_html($total_posts > 0 ? round(($optimized_posts / $total_posts) * 100) : 0)); ?></strong></td>
+                    </tr>
+                    <tr style="background: #fff3e0;">
+                        <td><strong><?php esc_html_e('○ Not Optimized:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td><?php printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($pending_posts), esc_html($total_posts > 0 ? round(($pending_posts / $total_posts) * 100) : 0)); ?></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
                 <h2><?php esc_html_e('Bulk Actions', 'llmo-blog-optimizer'); ?></h2>
                 <p><?php esc_html_e('Select posts to optimize or optimize all pending posts at once.', 'llmo-blog-optimizer'); ?></p>
                 
@@ -76,14 +83,14 @@ class LLMO_Blog_Optimizer_Bulk {
                 <button type="button" class="button button-secondary button-large" id="llmo-optimize-selected" style="margin-left: 10px;">
                     <?php esc_html_e('Optimize Selected', 'llmo-blog-optimizer'); ?>
                 </button>
-            </div>
-            
-            <div class="llmo-progress" id="llmo-progress" style="display: none; background: #fff; padding: 20px; margin: 20px 0;">
-                <h3><?php esc_html_e('Optimization Progress', 'llmo-blog-optimizer'); ?></h3>
-                <div style="background: #f0f0f0; height: 30px; border-radius: 5px; overflow: hidden;">
-                    <div id="llmo-progress-bar" style="background: #0073aa; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                
+                <div id="llmo-progress" style="display: none; margin-top: 20px;">
+                    <h3><?php esc_html_e('Optimization Progress', 'llmo-blog-optimizer'); ?></h3>
+                    <div style="background: #f0f0f0; height: 30px; border-radius: 5px; overflow: hidden;">
+                        <div id="llmo-progress-bar" style="background: #0073aa; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                    <p id="llmo-progress-text" style="margin: 10px 0 0 0;">0 / 0</p>
                 </div>
-                <p id="llmo-progress-text" style="margin: 10px 0 0 0;">0 / 0</p>
             </div>
             
             <form method="post" id="llmo-bulk-form">
@@ -110,29 +117,35 @@ class LLMO_Blog_Optimizer_Bulk {
                                 <input type="checkbox" name="post_ids[]" value="<?php echo esc_attr($post->ID); ?>" class="llmo-post-checkbox">
                             </th>
                             <td>
+                                <?php if ($optimized): ?>
+                                    <span style="color: #4caf50; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('LLMO-optimized', 'llmo-blog-optimizer'); ?>">✓</span>
+                                <?php else: ?>
+                                    <span style="color: #ff9800; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('Not optimized', 'llmo-blog-optimizer'); ?>">○</span>
+                                <?php endif; ?>
                                 <strong>
                                     <a href="<?php echo esc_url(get_edit_post_link($post->ID)); ?>">
                                         <?php echo esc_html($post->post_title); ?>
                                     </a>
                                 </strong>
+                                <?php if ($optimized): ?>
+                                    <span style="color: #4caf50; font-size: 11px; margin-left: 8px;">● <?php esc_html_e('AI-optimized', 'llmo-blog-optimizer'); ?></span>
+                                <?php endif; ?>
                             </td>
                             <td><?php echo esc_html(get_the_date('', $post->ID)); ?></td>
                             <td>
                                 <?php if ($optimized): ?>
-                                    <span style="color: #46b450;">
-                                        <i class="dashicons dashicons-yes-alt"></i>
+                                    <span style="color: #4caf50;">
                                         <?php esc_html_e('Optimized', 'llmo-blog-optimizer'); ?>
                                     </span>
                                 <?php else: ?>
-                                    <span style="color: #ffb900;">
-                                        <i class="dashicons dashicons-warning"></i>
+                                    <span style="color: #ff9800;">
                                         <?php esc_html_e('Pending', 'llmo-blog-optimizer'); ?>
                                     </span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if ($ai_score): ?>
-                                    <strong style="color: <?php echo $ai_score >= 80 ? '#46b450' : ($ai_score >= 60 ? '#ffb900' : '#dc3232'); ?>">
+                                    <strong style="color: <?php echo $ai_score >= 80 ? '#4caf50' : ($ai_score >= 60 ? '#ff9800' : '#dc3232'); ?>">
                                         <?php echo esc_html($ai_score); ?>/100
                                     </strong>
                                 <?php else: ?>

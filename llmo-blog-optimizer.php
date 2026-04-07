@@ -238,7 +238,7 @@ class LLMO_Blog_Optimizer {
         <div class="llmo-meta-box">
             <?php if ($optimized): ?>
                 <p>
-                    <i class="dashicons dashicons-yes-alt" style="color: #46b450;"></i>
+                    <span style="color: #4caf50; font-size: 16px;">✓</span>
                     <strong><?php _e('Optimized', 'llmo-blog-optimizer'); ?></strong>
                 </p>
                 <?php if ($optimized_at): ?>
@@ -249,7 +249,7 @@ class LLMO_Blog_Optimizer {
                 <?php if ($ai_score): ?>
                     <p>
                         <strong><?php _e('AI Readiness Score:', 'llmo-blog-optimizer'); ?></strong> 
-                        <span style="font-size: 18px; color: <?php echo $ai_score >= 80 ? '#46b450' : ($ai_score >= 60 ? '#ffb900' : '#dc3232'); ?>">
+                        <span style="font-size: 18px; color: <?php echo $ai_score >= 80 ? '#4caf50' : ($ai_score >= 60 ? '#ff9800' : '#dc3232'); ?>">
                             <?php echo esc_html($ai_score); ?>/100
                         </span>
                     </p>
@@ -261,7 +261,7 @@ class LLMO_Blog_Optimizer {
                 </p>
             <?php else: ?>
                 <p>
-                    <i class="dashicons dashicons-warning" style="color: #ffb900;"></i>
+                    <span style="color: #ff9800; font-size: 16px;">○</span>
                     <?php _e('Not optimized yet', 'llmo-blog-optimizer'); ?>
                 </p>
                 <p>
