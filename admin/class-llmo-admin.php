@@ -115,6 +115,42 @@ class LLMO_Blog_Optimizer_Admin {
             'llmo-blog-optimizer',
             'llmo_blog_optimizer_general_section'
         );
+        
+        // Organization section
+        add_settings_section(
+            'llmo_blog_optimizer_organization_section',
+            __('Organization / Business Information', 'llmo-blog-optimizer'),
+            array($this, 'render_organization_section'),
+            'llmo-blog-optimizer'
+        );
+        
+        // Organization fields
+        $org_fields = array(
+            'llmo_organization_type' => __('Type', 'llmo-blog-optimizer'),
+            'llmo_organization_name' => __('Name', 'llmo-blog-optimizer'),
+            'llmo_organization_phone' => __('Phone', 'llmo-blog-optimizer'),
+            'llmo_organization_email' => __('Email', 'llmo-blog-optimizer'),
+            'llmo_organization_street' => __('Street Address', 'llmo-blog-optimizer'),
+            'llmo_organization_city' => __('City', 'llmo-blog-optimizer'),
+            'llmo_organization_postal' => __('Postal Code', 'llmo-blog-optimizer'),
+            'llmo_organization_country' => __('Country', 'llmo-blog-optimizer'),
+        );
+        
+        foreach ($org_fields as $field_id => $field_label) {
+            register_setting('llmo_blog_optimizer_settings', $field_id, array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ));
+            
+            add_settings_field(
+                $field_id,
+                $field_label,
+                array($this, 'render_text_field'),
+                'llmo-blog-optimizer',
+                'llmo_blog_optimizer_organization_section',
+                array('field_id' => $field_id)
+            );
+        }
     }
     
     /**
@@ -253,6 +289,41 @@ class LLMO_Blog_Optimizer_Admin {
                        <?php checked(in_array($post_type->name, $selected_post_types)); ?>>
                 <?php echo esc_html($post_type->label); ?>
             </label>
+            <?php
+        }
+    }
+    
+    /**
+     * Render organization section
+     */
+    public function render_organization_section() {
+        echo '<p>' . esc_html__('Configure your organization information for Schema.org markup on the homepage.', 'llmo-blog-optimizer') . '</p>';
+    }
+    
+    /**
+     * Render generic text field
+     */
+    public function render_text_field($args) {
+        $field_id = $args['field_id'];
+        $value = get_option($field_id, '');
+        
+        if ($field_id === 'llmo_organization_type') {
+            ?>
+            <select name="<?php echo esc_attr($field_id); ?>" class="regular-text">
+                <option value="Organization" <?php selected($value, 'Organization'); ?>>Organization</option>
+                <option value="LocalBusiness" <?php selected($value, 'LocalBusiness'); ?>>Local Business</option>
+                <option value="Corporation" <?php selected($value, 'Corporation'); ?>>Corporation</option>
+                <option value="EducationalOrganization" <?php selected($value, 'EducationalOrganization'); ?>>Educational Organization</option>
+                <option value="GovernmentOrganization" <?php selected($value, 'GovernmentOrganization'); ?>>Government Organization</option>
+                <option value="NGO" <?php selected($value, 'NGO'); ?>>NGO</option>
+            </select>
+            <?php
+        } else {
+            ?>
+            <input type="text" 
+                   name="<?php echo esc_attr($field_id); ?>" 
+                   value="<?php echo esc_attr($value); ?>" 
+                   class="regular-text">
             <?php
         }
     }

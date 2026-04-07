@@ -66,6 +66,8 @@ class LLMO_Blog_Optimizer {
         require_once LLMO_BLOG_OPTIMIZER_PLUGIN_DIR . 'includes/class-llmo-api-client.php';
         require_once LLMO_BLOG_OPTIMIZER_PLUGIN_DIR . 'includes/class-llmo-article-detector.php';
         require_once LLMO_BLOG_OPTIMIZER_PLUGIN_DIR . 'includes/class-llmo-schema-generator.php';
+        require_once LLMO_BLOG_OPTIMIZER_PLUGIN_DIR . 'includes/class-llmo-faq-shortcode.php';
+        require_once LLMO_BLOG_OPTIMIZER_PLUGIN_DIR . 'includes/class-llmo-faq-widget.php';
         require_once LLMO_BLOG_OPTIMIZER_PLUGIN_DIR . 'admin/class-llmo-admin.php';
         require_once LLMO_BLOG_OPTIMIZER_PLUGIN_DIR . 'admin/class-llmo-bulk-optimizer.php';
     }
@@ -291,12 +293,19 @@ class LLMO_Blog_Optimizer {
      * Output Schema.org markup in head
      */
     public function output_schema_markup() {
-        if (!is_singular()) {
+        if (!is_singular() && !is_front_page() && !is_home()) {
             return;
         }
         
         $post_id = get_the_ID();
+        
+        // Try to get optimized schema from post meta first
         $schema = get_post_meta($post_id, '_llmo_schema_org', true);
+        
+        // If no optimized schema, generate basic schema
+        if (empty($schema)) {
+            $schema = LLMO_Schema_Generator::generate_schema($post_id);
+        }
         
         if (empty($schema)) {
             return;
@@ -305,6 +314,37 @@ class LLMO_Blog_Optimizer {
         echo '<script type="application/ld+json">' . "\n";
         echo wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         echo "\n" . '</script>' . "\n";
+        
+        // Output FAQ schema if available
+        $faq_data = get_post_meta($post_id, '_llmo_faq', true);
+        if (!empty($faq_data) && is_array($faq_data)) {
+            $faq_schema = array(
+                '@context' => 'https://schema.org',
+                '@type' => 'FAQPage',
+                'mainEntity' => array()
+            );
+            
+            foreach ($faq_data as $item) {
+                if (empty($item['question']) || empty($item['answer'])) {
+                    continue;
+                }
+                
+                $faq_schema['mainEntity'][] = array(
+                    '@type' => 'Question',
+                    'name' => $item['question'],
+                    'acceptedAnswer' => array(
+                        '@type' => 'Answer',
+                        'text' => $item['answer']
+                    )
+                );
+            }
+            
+            if (!empty($faq_schema['mainEntity'])) {
+                echo '<script type="application/ld+json">' . "\n";
+                echo wp_json_encode($faq_schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+                echo "\n" . '</script>' . "\n";
+            }
+        }
     }
 }
 
