@@ -1,0 +1,138 @@
+=== LLMO Blog Optimizer ===
+Contributors: llmoready
+Tags: seo, schema, ai, optimization, blog, structured-data, faq, voice-search
+Requires at least: 5.8
+Tested up to: 6.5
+Requires PHP: 7.4
+Stable tag: 1.0.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+AI-powered blog optimization. Auto-generates Schema.org markup, FAQs, and key takeaways for better visibility in AI search engines.
+
+== Description ==
+
+**Optimize Your Blog for AI Search Engines**
+
+LLMO Blog Optimizer automatically enhances your blog posts for better visibility in AI-powered search engines like ChatGPT, Google SGE, and Perplexity. The plugin uses advanced AI to analyze your content and generate structured data, FAQs, and key takeaways.
+
+= Features =
+
+* **Automatic Schema.org Markup** - Generates Article schema for better search visibility
+* **AI-Powered FAQ Generation** - Creates relevant FAQs from your content
+* **Key Takeaways** - Extracts the most important points from your articles
+* **AI Readiness Score** - Shows how well your content is optimized for AI
+* **Bulk Optimization** - Optimize multiple posts at once
+* **Auto-Optimize** - Automatically optimize new posts when published
+* **Post Type Support** - Works with posts, pages, and custom post types
+* **Easy Setup** - Simple configuration with API key
+
+= How It Works =
+
+1. Install and activate the plugin
+2. Get your free API key from [llmoready.com](https://llmoready.com)
+3. Enter your API key in Settings
+4. Your posts will be automatically optimized when published
+5. Or use the Bulk Optimizer to optimize existing posts
+
+= Requirements =
+
+* WordPress 5.8 or higher
+* PHP 7.4 or higher
+* LLMO Ready account (free tier available)
+
+= Privacy & Data =
+
+This plugin sends your post content to the LLMO Ready API for analysis. No personal data is collected. See our [Privacy Policy](https://llmoready.com/privacy) for details.
+
+== Installation ==
+
+= Automatic Installation =
+
+1. Go to Plugins > Add New
+2. Search for "LLMO Blog Optimizer"
+3. Click "Install Now"
+4. Activate the plugin
+
+= Manual Installation =
+
+1. Download the plugin ZIP file
+2. Go to Plugins > Add New > Upload Plugin
+3. Choose the ZIP file and click "Install Now"
+4. Activate the plugin
+
+= Configuration =
+
+1. Go to LLMO Optimizer > Settings
+2. Enter your API key from [llmoready.com](https://llmoready.com)
+3. Click "Test Connection" to verify
+4. Configure auto-optimization settings
+5. Select which post types to optimize
+
+== Frequently Asked Questions ==
+
+= Do I need an API key? =
+
+Yes, you need a free API key from [llmoready.com](https://llmoready.com). The free tier includes optimization for up to 100 posts per month.
+
+= Which post types are supported? =
+
+The plugin works with posts, pages, and any custom post types. You can select which post types to optimize in the settings.
+
+= Will this slow down my site? =
+
+No, optimization happens in the background via API calls. Your site performance is not affected.
+
+= Can I optimize existing posts? =
+
+Yes! Use the Bulk Optimizer tool to optimize all your existing posts at once.
+
+= What happens to my optimizations if I deactivate the plugin? =
+
+All optimization data is stored as post meta and will remain even if you deactivate the plugin.
+
+= Is my content sent to external servers? =
+
+Yes, your post content is sent to the LLMO Ready API for analysis. The API is GDPR compliant and does not store your content permanently.
+
+== Screenshots ==
+
+1. Settings page with API configuration
+2. Bulk Optimizer dashboard
+3. Post editor meta box showing optimization status
+4. AI Readiness Score display
+5. Generated Schema.org markup example
+
+== Changelog ==
+
+= 1.0.0 =
+* Initial release
+* Auto-optimization for new posts
+* Bulk optimization tool
+* Schema.org Article markup generation
+* FAQ generation
+* Key takeaways extraction
+* AI Readiness Score
+* Support for multiple post types
+
+== Upgrade Notice ==
+
+= 1.0.0 =
+Initial release of LLMO Blog Optimizer.
+
+== Support ==
+
+For support, please visit:
+* Documentation: https://docs.llmoready.com/wordpress-plugin
+* Support Forum: https://wordpress.org/support/plugin/llmo-blog-optimizer/
+* Email: support@llmoready.com
+
+== Privacy Policy ==
+
+This plugin sends post content to the LLMO Ready API for analysis. The API:
+* Does not permanently store your content
+* Does not collect personal data
+* Is GDPR compliant
+* Uses HTTPS encryption
+
+For more information, see our [Privacy Policy](https://llmoready.com/privacy).

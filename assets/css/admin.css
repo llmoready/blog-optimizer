@@ -1,0 +1,60 @@
+/**
+ * LLMO Blog Optimizer - Admin Styles
+ */
+
+.llmo-meta-box {
+    padding: 10px 0;
+}
+
+.llmo-meta-box p {
+    margin: 10px 0;
+}
+
+.llmo-meta-box .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.llmo-stat-card {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.llmo-bulk-stats {
+    margin: 20px 0;
+}
+
+#llmo-connection-status {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+#llmo-connection-status.success {
+    color: #46b450;
+}
+
+#llmo-connection-status.error {
+    color: #dc3232;
+}
+
+.llmo-optimize,
+.llmo-reoptimize {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.llmo-progress {
+    margin: 20px 0;
+}
+
+#llmo-progress-bar {
+    transition: width 0.3s ease;
+}
+
+.llmo-post-checkbox {
+    margin: 0;
+}
+
+.wp-list-table .check-column {
+    width: 2.2em;
+}
