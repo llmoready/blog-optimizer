@@ -268,21 +268,45 @@ class LLMO_Blog_Optimizer_Admin {
      */
     public function render_consent_field() {
         $consent = get_option('llmo_blog_optimizer_consent', '');
+        $has_consent = ($consent === 'yes');
         ?>
-        <label>
+        <label style="display: block; margin-bottom: 10px;">
             <input type="checkbox" 
                    name="llmo_blog_optimizer_consent" 
                    value="yes" 
-                   <?php checked($consent, 'yes'); ?>>
-            <?php esc_html_e('I consent to sending post content to LLMOReady.com for AI optimization', 'llmo-blog-optimizer'); ?>
+                   <?php checked($has_consent); ?>>
+            <strong><?php esc_html_e('I consent to sending my post content to LLMOReady.com for AI optimization and processing.', 'llmo-blog-optimizer'); ?></strong>
         </label>
-        <p class="description">
+        
+        <p class="description" style="margin-left: 24px; margin-top: 8px;">
+            <?php esc_html_e('By checking this box, you agree that your post content (title, content, excerpt) will be sent to LLMOReady.com via secure HTTPS for AI optimization and analysis.', 'llmo-blog-optimizer'); ?>
+        </p>
+        
+        <p class="description" style="margin-left: 24px; margin-top: 8px;">
             <?php printf(
-                esc_html__('By checking this box, you agree that your post content will be sent to our API for analysis and optimization. Please review our %1$s and %2$s for details on how we handle your data.', 'llmo-blog-optimizer'),
+                esc_html__('Please review our %1$s and %2$s before proceeding.', 'llmo-blog-optimizer'),
                 '<a href="https://llmoready.com/privacy" target="_blank">' . esc_html__('Privacy Policy', 'llmo-blog-optimizer') . '</a>',
                 '<a href="https://llmoready.com/terms" target="_blank">' . esc_html__('Terms of Use', 'llmo-blog-optimizer') . '</a>'
             ); ?>
         </p>
+        
+        <?php if (!$has_consent): ?>
+            <div class="notice notice-warning inline" style="margin-top: 15px; margin-left: 24px;">
+                <p>
+                    <span class="dashicons dashicons-warning" style="color: #d63638;"></span>
+                    <strong><?php esc_html_e('Consent required:', 'llmo-blog-optimizer'); ?></strong>
+                    <?php esc_html_e('You must check this box and save settings before optimizing posts. No data will be sent without your explicit consent.', 'llmo-blog-optimizer'); ?>
+                </p>
+            </div>
+        <?php else: ?>
+            <div class="notice notice-success inline" style="margin-top: 15px; margin-left: 24px;">
+                <p>
+                    <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+                    <strong><?php esc_html_e('Consent given.', 'llmo-blog-optimizer'); ?></strong>
+                    <?php esc_html_e('You can now optimize your posts. You may withdraw consent at any time by unchecking this box.', 'llmo-blog-optimizer'); ?>
+                </p>
+            </div>
+        <?php endif; ?>
         <?php
     }
     

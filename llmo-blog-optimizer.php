@@ -135,11 +135,29 @@ class LLMO_Blog_Optimizer {
     }
     
     /**
+     * Check if user has given explicit consent
+     * 
+     * @return bool
+     */
+    private function has_explicit_consent() {
+        return get_option('llmo_blog_optimizer_consent', '') === 'yes';
+    }
+    
+    /**
      * Auto-optimize post on publish
      */
     public function auto_optimize_post($post_id, $post) {
         // Check if auto-optimize is enabled
         if (get_option('llmo_blog_optimizer_auto_optimize') !== 'yes') {
+            return;
+        }
+        
+        // CRITICAL: Check explicit consent before any data processing (WordPress.org compliance)
+        if (!$this->has_explicit_consent()) {
+            // Silently skip - don't break publishing flow
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('LLMO Blog Optimizer: Auto-optimization skipped - no user consent');
+            }
             return;
         }
         
@@ -230,15 +248,50 @@ class LLMO_Blog_Optimizer {
     public function render_meta_box($post) {
         wp_nonce_field('llmo_blog_optimizer_meta_box', 'llmo_blog_optimizer_nonce');
         
+        // Check prerequisites
+        $has_consent = $this->has_explicit_consent();
+        $api_key = get_option('llmo_blog_optimizer_api_key');
+        $has_api_key = !empty($api_key);
+        $can_optimize = $has_consent && $has_api_key;
+        
+        // Get optimization status
         $optimized = get_post_meta($post->ID, '_llmo_optimized', true);
         $optimized_at = get_post_meta($post->ID, '_llmo_optimized_at', true);
         $ai_score = get_post_meta($post->ID, '_llmo_ai_readiness_score', true);
-        
         ?>
         <div class="llmo-meta-box">
+            <?php 
+            // Show configuration warnings if setup incomplete
+            if (!$can_optimize): 
+                ?>
+                <div style="background: #f0f0f1; border-left: 4px solid #d63638; padding: 12px; margin-bottom: 15px;">
+                    <p style="margin: 0 0 8px 0; font-weight: 600;">
+                        <span class="dashicons dashicons-warning" style="color: #d63638; vertical-align: middle;"></span>
+                        <?php _e('Setup Required', 'llmo-blog-optimizer'); ?>
+                    </p>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 12px;">
+                        <?php if (!$has_api_key): ?>
+                            <li><?php _e('Enter your API key in Settings', 'llmo-blog-optimizer'); ?></li>
+                        <?php endif; ?>
+                        <?php if (!$has_consent): ?>
+                            <li><?php _e('Give consent to data processing', 'llmo-blog-optimizer'); ?></li>
+                        <?php endif; ?>
+                    </ul>
+                    <p style="margin: 10px 0 0 0;">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=llmo-blog-optimizer')); ?>" class="button button-small">
+                            <?php _e('Go to Settings', 'llmo-blog-optimizer'); ?>
+                        </a>
+                    </p>
+                </div>
+                <?php
+            endif;
+            ?>
+            
             <?php if ($optimized): ?>
                 <p>
-                    <span style="color: #4caf50; font-size: 16px;">✓</span>
+                    <span style="color: #00a32a; font-size: 16px;">
+                        <span class="dashicons dashicons-yes-alt"></span>
+                    </span>
                     <strong><?php _e('Optimized', 'llmo-blog-optimizer'); ?></strong>
                 </p>
                 <?php if ($optimized_at): ?>
@@ -246,29 +299,48 @@ class LLMO_Blog_Optimizer {
                         <?php printf(__('Last optimized: %s', 'llmo-blog-optimizer'), date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($optimized_at))); ?>
                     </p>
                 <?php endif; ?>
+                
                 <?php if ($ai_score): ?>
                     <p>
-                        <strong><?php _e('AI Readiness Score:', 'llmo-blog-optimizer'); ?></strong> 
-                        <span style="font-size: 18px; color: <?php echo $ai_score >= 80 ? '#4caf50' : ($ai_score >= 60 ? '#ff9800' : '#dc3232'); ?>">
+                        <strong><?php _e('AI Readiness Score:', 'llmo-blog-optimizer'); ?></strong><br>
+                        <span style="font-size: 24px; font-weight: bold; color: <?php echo $ai_score >= 80 ? '#00a32a' : ($ai_score >= 60 ? '#ff9800' : '#d63638'); ?>">
                             <?php echo esc_html($ai_score); ?>/100
                         </span>
                     </p>
                 <?php endif; ?>
-                <p>
-                    <button type="button" class="button button-secondary llmo-reoptimize" data-post-id="<?php echo esc_attr($post->ID); ?>">
+                
+                <p style="margin-top: 15px;">
+                    <button type="button" 
+                            class="button button-secondary llmo-reoptimize" 
+                            data-post-id="<?php echo esc_attr($post->ID); ?>"
+                            <?php disabled(!$can_optimize); ?>>
                         <?php _e('Re-optimize', 'llmo-blog-optimizer'); ?>
                     </button>
                 </p>
+                
             <?php else: ?>
                 <p>
-                    <span style="color: #ff9800; font-size: 16px;">○</span>
-                    <?php _e('Not optimized yet', 'llmo-blog-optimizer'); ?>
+                    <span style="color: #d63638; font-size: 16px;">
+                        <span class="dashicons dashicons-marker"></span>
+                    </span>
+                    <strong><?php _e('Not optimized yet', 'llmo-blog-optimizer'); ?></strong>
                 </p>
-                <p>
-                    <button type="button" class="button button-primary llmo-optimize" data-post-id="<?php echo esc_attr($post->ID); ?>">
+                
+                <p style="margin-top: 15px;">
+                    <button type="button" 
+                            class="button button-primary llmo-optimize" 
+                            data-post-id="<?php echo esc_attr($post->ID); ?>"
+                            <?php disabled(!$can_optimize); ?>>
                         <?php _e('Optimize Now', 'llmo-blog-optimizer'); ?>
                     </button>
                 </p>
+                
+                <?php if (!$can_optimize): ?>
+                    <p class="description" style="color: #d63638; margin-top: 8px;">
+                        <?php _e('Complete setup in Settings to enable optimization.', 'llmo-blog-optimizer'); ?>
+                    </p>
+                <?php endif; ?>
+                
             <?php endif; ?>
         </div>
         <?php

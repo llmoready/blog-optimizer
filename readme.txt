@@ -61,6 +61,23 @@ For complete details, please review:
 - [Privacy Policy](https://llmoready.com/privacy)
 - [Terms of Use](https://llmoready.com/terms)
 
+= External Service =
+
+This plugin relies on the LLMOReady.com API for AI optimization functionality. The following data is sent to our servers:
+
+- Post title, content, and excerpt
+- Post author name (public)
+- Publication date
+- Post URL
+
+**User Consent Required:** You must explicitly consent to data processing in plugin settings before any content is transmitted. No data is sent without your explicit consent.
+
+**Service Terms:**
+- Service: https://llmoready.com
+- Terms of Use: https://llmoready.com/terms
+- Privacy Policy: https://llmoready.com/privacy
+- Location: Germany (GDPR compliant)
+
 == Installation ==
 
 = Automatic Installation =
