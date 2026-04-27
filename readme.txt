@@ -8,7 +8,7 @@ Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
+Automatically adds Schema.org JSON-LD markup with AI-optimized content for better visibility in AI search engines (ChatGPT, Google SGE, Perplexity).
 
 == Description ==
 
@@ -153,6 +153,8 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 == Changelog ==
 
 = 1.0.2 =
+* Fixed: Removed Update URI header (not allowed for WordPress.org)
+* Fixed: Shortened readme.txt short description to under 150 characters
 * Fixed: Plugin URI changed to wordpress.org for proper plugin details link
 * Fixed: Consistent plugin listing with other LLMO Ready plugins
 
