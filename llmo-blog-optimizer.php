@@ -3,12 +3,13 @@
  * Plugin Name: LLMO Ready - Blog Optimizer
  * Plugin URI: https://llmoready.com
  * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: LLMO Ready
  * Author URI: https://llmoready.com
  * Requires at least: 5.8
  * Tested up to: 6.9
  * Requires PHP: 7.4
+ * Update URI: https://llmoready.com
  * Text Domain: llmo-blog-optimizer
  * Domain Path: /languages
  * License: GPL v2 or later
@@ -337,7 +338,7 @@ class LLMO_Blog_Optimizer {
      */
     public function save_post_meta($post_id) {
         // Check nonce
-        if (!isset($_POST['llmo_blog_optimizer_nonce']) || !wp_verify_nonce(wp_unslash($_POST['llmo_blog_optimizer_nonce']), 'llmo_blog_optimizer_meta_box')) {
+        if (!isset($_POST['llmo_blog_optimizer_nonce']) || !wp_verify_nonce(wp_unslash(sanitize_text_field($_POST['llmo_blog_optimizer_nonce'])), 'llmo_blog_optimizer_meta_box')) {
             return;
         }
         

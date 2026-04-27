@@ -21,7 +21,7 @@ delete_option('llmo_blog_optimizer_version');
 // This avoids direct database queries for better compatibility
 
 // List all meta keys created by the plugin
-$meta_keys = array(
+$llmo_meta_keys = array(
     '_llmo_optimized',
     '_llmo_optimized_at',
     '_llmo_schema_org',
@@ -31,8 +31,8 @@ $meta_keys = array(
 );
 
 // Delete each meta key for all posts
-foreach ($meta_keys as $meta_key) {
-    delete_post_meta_by_key($meta_key);
+foreach ($llmo_meta_keys as $llmo_meta_key) {
+    delete_post_meta_by_key($llmo_meta_key);
 }
 
 // Clear any cached data

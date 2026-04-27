@@ -256,10 +256,10 @@ class LLMO_Blog_Optimizer_Admin {
         <span id="llmo-connection-status"></span>
         <p class="description">
             <?php
-            /* translators: %s: Link to llmoready.com dashboard */
+            /* translators: %s: Link to LLMO Ready app dashboard */
             printf(
                 esc_html__('Get your API key from %s', 'llmo-blog-optimizer'),
-                '<a href="https://llmoready.com/dashboard" target="_blank">llmoready.com</a>'
+                '<a href="https://app.llmoready.com/settings" target="_blank">app.llmoready.com</a>'
             );
             ?>
         </p>
