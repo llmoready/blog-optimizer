@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LLMO Ready - Blog Optimizer
  * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: LLMO Ready
  * Author URI: https://llmoready.com
  * Requires at least: 5.8
