@@ -85,10 +85,8 @@ For more information, see our [Privacy Policy](https://llmoready.com/privacy).
 
 ## Support
 
-- **Documentation**: https://docs.llmoready.com/wordpress-plugin
-- **Support Forum**: https://wordpress.org/support/plugin/llmo-blog-optimizer/
+- **Documentation**: https://llmoready.com/documentation/
 - **Email**: support@llmoready.com
-- **Issues**: https://github.com/llmoready/blog-optimizer/issues
 
 ## Development
 
