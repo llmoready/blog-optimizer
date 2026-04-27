@@ -436,7 +436,7 @@ class LLMO_Blog_Optimizer_Admin {
             wp_send_json_error(array('message' => __('Permission denied', 'llmo-blog-optimizer')));
         }
         
-        $api_key = isset($_POST['api_key']) ? sanitize_text_field($_POST['api_key']) : '';
+        $api_key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
         
         if (empty($api_key)) {
             wp_send_json_error(array('message' => __('API key is required', 'llmo-blog-optimizer')));

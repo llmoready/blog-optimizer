@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: LLMO Blog Optimizer
- * Plugin URI: https://github.com/llmoready/blog-optimizer
- * Description: AI-powered blog optimization for better visibility in AI search engines. Auto-generates Schema.org markup, FAQs, and key takeaways for your blog posts.
+ * Plugin Name: LLMO Ready - Blog Optimizer
+ * Plugin URI: https://llmoready.com
+ * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
  * Version: 1.0.0
  * Author: LLMO Ready
  * Author URI: https://llmoready.com
  * Requires at least: 5.8
- * Tested up to: 6.5
+ * Tested up to: 6.9
  * Requires PHP: 7.4
  * Text Domain: llmo-blog-optimizer
  * Domain Path: /languages
@@ -80,9 +80,6 @@ class LLMO_Blog_Optimizer {
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
         
-        // Load text domain
-        add_action('plugins_loaded', array($this, 'load_textdomain'));
-        
         // Admin hooks
         if (is_admin()) {
             $admin = new LLMO_Blog_Optimizer_Admin();
@@ -124,17 +121,6 @@ class LLMO_Blog_Optimizer {
     }
     
     /**
-     * Load plugin text domain
-     */
-    public function load_textdomain() {
-        load_plugin_textdomain(
-            'llmo-blog-optimizer',
-            false,
-            dirname(LLMO_BLOG_OPTIMIZER_PLUGIN_BASENAME) . '/languages'
-        );
-    }
-    
-    /**
      * Check if user has given explicit consent
      * 
      * @return bool
@@ -155,9 +141,6 @@ class LLMO_Blog_Optimizer {
         // CRITICAL: Check explicit consent before any data processing (WordPress.org compliance)
         if (!$this->has_explicit_consent()) {
             // Silently skip - don't break publishing flow
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('LLMO Blog Optimizer: Auto-optimization skipped - no user consent');
-            }
             return;
         }
         
@@ -354,7 +337,7 @@ class LLMO_Blog_Optimizer {
      */
     public function save_post_meta($post_id) {
         // Check nonce
-        if (!isset($_POST['llmo_blog_optimizer_nonce']) || !wp_verify_nonce($_POST['llmo_blog_optimizer_nonce'], 'llmo_blog_optimizer_meta_box')) {
+        if (!isset($_POST['llmo_blog_optimizer_nonce']) || !wp_verify_nonce(wp_unslash($_POST['llmo_blog_optimizer_nonce']), 'llmo_blog_optimizer_meta_box')) {
             return;
         }
         

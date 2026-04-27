@@ -1,4 +1,4 @@
-=== LLMO Blog Optimizer ===
+=== LLMO Ready - Blog Optimizer ===
 Contributors: llmoready
 Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
@@ -8,11 +8,13 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered blog optimization. Auto-generates Schema.org markup, FAQs, and key takeaways for better visibility in AI search engines.
+Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
 
 == Description ==
 
-**Optimize Your Blog for AI Search Engines**
+**LLMO Ready - Blog Optimizer**
+
+Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
 
 LLMO Blog Optimizer automatically enhances your blog posts for better visibility in AI-powered search engines like ChatGPT, Google SGE, and Perplexity. The plugin uses advanced AI to analyze your content and generate structured data, FAQs, and key takeaways.
 

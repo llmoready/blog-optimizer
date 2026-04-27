@@ -14,12 +14,26 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 delete_option('llmo_blog_optimizer_api_key');
 delete_option('llmo_blog_optimizer_auto_optimize');
 delete_option('llmo_blog_optimizer_post_types');
+delete_option('llmo_blog_optimizer_consent');
 delete_option('llmo_blog_optimizer_version');
 
-// Delete all post meta created by the plugin
-global $wpdb;
+// Delete all post meta created by the plugin using WP functions
+// This avoids direct database queries for better compatibility
 
-$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '_llmo_%'");
+// List all meta keys created by the plugin
+$meta_keys = array(
+    '_llmo_optimized',
+    '_llmo_optimized_at',
+    '_llmo_schema_org',
+    '_llmo_faq',
+    '_llmo_key_takeaways',
+    '_llmo_ai_readiness_score',
+);
+
+// Delete each meta key for all posts
+foreach ($meta_keys as $meta_key) {
+    delete_post_meta_by_key($meta_key);
+}
 
 // Clear any cached data
 wp_cache_flush();

@@ -41,14 +41,20 @@ class LLMO_FAQ_Widget extends WP_Widget {
             return;
         }
         
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Widget arguments are trusted
         echo $args['before_widget'];
         
         if (!empty($title)) {
-            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- before_title is trusted HTML from widget class
+            echo $args['before_title'];
+            echo esc_html($title);
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- after_title is trusted HTML from widget class
+            echo $args['after_title'];
         }
         
         echo do_shortcode('[llmo_faq show_title="no"]');
         
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Widget arguments are trusted
         echo $args['after_widget'];
     }
     
