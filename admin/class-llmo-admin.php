@@ -256,8 +256,8 @@ class LLMO_Blog_Optimizer_Admin {
         <span id="llmo-connection-status"></span>
         <p class="description">
             <?php
-            /* translators: %s: Link to LLMO Ready app dashboard */
             printf(
+                /* translators: %s: Link to LLMO Ready app dashboard */
                 esc_html__('Get your API key from %s', 'llmo-blog-optimizer'),
                 '<a href="https://app.llmoready.com/settings" target="_blank">app.llmoready.com</a>'
             );
@@ -287,8 +287,8 @@ class LLMO_Blog_Optimizer_Admin {
         
         <p class="description" style="margin-left: 24px; margin-top: 8px;">
             <?php
-            /* translators: %1$s: Privacy Policy link, %2$s: Terms of Use link */
             printf(
+                /* translators: %1$s: Privacy Policy link, %2$s: Terms of Use link */
                 esc_html__('Please review our %1$s and %2$s before proceeding.', 'llmo-blog-optimizer'),
                 '<a href="https://llmoready.com/privacy" target="_blank">' . esc_html__('Privacy Policy', 'llmo-blog-optimizer') . '</a>',
                 '<a href="https://llmoready.com/terms" target="_blank">' . esc_html__('Terms of Use', 'llmo-blog-optimizer') . '</a>'

@@ -336,7 +336,7 @@ class LLMO_Blog_Optimizer {
      */
     public function save_post_meta($post_id) {
         // Check nonce
-        if (!isset($_POST['llmo_blog_optimizer_nonce']) || !wp_verify_nonce(wp_unslash(sanitize_text_field($_POST['llmo_blog_optimizer_nonce'])), 'llmo_blog_optimizer_meta_box')) {
+        if (!isset($_POST['llmo_blog_optimizer_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['llmo_blog_optimizer_nonce'])), 'llmo_blog_optimizer_meta_box')) {
             return;
         }
         
