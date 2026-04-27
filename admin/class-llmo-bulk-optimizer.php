@@ -58,15 +58,30 @@ class LLMO_Blog_Optimizer_Bulk {
                 <table class="widefat" style="width: auto; min-width: 500px;">
                     <tr>
                         <td style="width: 200px;"><strong><?php esc_html_e('Total Posts:', 'llmo-blog-optimizer'); ?></strong></td>
-                        <td><?php printf(esc_html__('%s posts', 'llmo-blog-optimizer'), esc_html($total_posts)); ?></td>
+                        <td>
+                            <?php
+                            /* translators: %s: Number of posts */
+                            printf(esc_html__('%s posts', 'llmo-blog-optimizer'), esc_html($total_posts));
+                            ?>
+                        </td>
                     </tr>
                     <tr style="background: #e8f5e9;">
-                        <td><strong><?php esc_html_e('✓ Optimized Posts:', 'llmo-blog-optimizer'); ?></strong></td>
-                        <td><strong><?php printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($optimized_posts), esc_html($total_posts > 0 ? round(($optimized_posts / $total_posts) * 100) : 0)); ?></strong></td>
+                        <td><strong><?php esc_html_e('Optimized Posts:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td><strong>
+                            <?php
+                            /* translators: %1$s: Number of optimized posts, %2$s: Percentage */
+                            printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($optimized_posts), esc_html($total_posts > 0 ? round(($optimized_posts / $total_posts) * 100) : 0));
+                            ?>
+                        </strong></td>
                     </tr>
                     <tr style="background: #fff3e0;">
-                        <td><strong><?php esc_html_e('○ Not Optimized:', 'llmo-blog-optimizer'); ?></strong></td>
-                        <td><?php printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($pending_posts), esc_html($total_posts > 0 ? round(($pending_posts / $total_posts) * 100) : 0)); ?></td>
+                        <td><strong><?php esc_html_e('Not Optimized:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td>
+                            <?php
+                            /* translators: %1$s: Number of pending posts, %2$s: Percentage */
+                            printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($pending_posts), esc_html($total_posts > 0 ? round(($pending_posts / $total_posts) * 100) : 0));
+                            ?>
+                        </td>
                     </tr>
                 </table>
             </div>
