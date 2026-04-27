@@ -259,7 +259,7 @@ class LLMO_Blog_Optimizer_Admin {
             printf(
                 /* translators: %s: Link to LLMO Ready app dashboard */
                 esc_html__('Get your API key from %s', 'llmo-blog-optimizer'),
-                '<a href="https://app.llmoready.com/settings" target="_blank">app.llmoready.com</a>'
+                '<a href="https://app.llmoready.com/websites" target="_blank">app.llmoready.com</a>'
             );
             ?>
         </p>
