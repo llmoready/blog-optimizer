@@ -4,7 +4,7 @@ Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -152,6 +152,10 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 
 == Changelog ==
 
+= 1.0.2 =
+* Fixed: Plugin URI changed to wordpress.org for proper plugin details link
+* Fixed: Consistent plugin listing with other LLMO Ready plugins
+
 = 1.0.1 =
 * Fixed: WordPress Plugin Check compliance errors
 * Fixed: Security - Added sanitize_text_field to nonce verification
@@ -164,6 +168,9 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 * Initial release of LLMO Ready - Blog Optimizer
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Plugin listing improvements for WordPress admin consistency.
 
 = 1.0.1 =
 Bug fixes and WordPress.org compliance improvements. Please update to ensure compatibility with WordPress.org submission guidelines.
