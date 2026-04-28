@@ -205,11 +205,42 @@ class LLMO_Blog_Optimizer_Admin {
      * Render settings page
      */
     public function render_settings_page() {
+        $api_key = get_option('llmo_blog_optimizer_api_key', '');
+        $site_url = rawurlencode(get_site_url());
+        $connect_url = 'https://app.llmoready.com/login?site=' . $site_url . '&from=plugin';
+        $register_url = 'https://llmoready.com/plugin/register?site=' . $site_url;
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             
             <?php settings_errors(); ?>
+            
+            <?php if (empty($api_key)): ?>
+            <div class="card" style="max-width: 700px; border-left: 4px solid #00d4ff; background: #f8f9fa; padding: 20px 24px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0; font-size: 20px; color: #1d2327;">
+                    <span class="dashicons dashicons-admin-links" style="color: #00d4ff; font-size: 24px; vertical-align: middle; margin-right: 8px;"></span>
+                    <?php esc_html_e('Connect with LLMO Ready', 'llmo-blog-optimizer'); ?>
+                </h2>
+                <p style="font-size: 14px; color: #50575e; line-height: 1.6;">
+                    <?php esc_html_e('To use the Blog Optimizer, connect your website with your LLMO Ready account. Your website will be automatically analyzed and you will receive an API token.', 'llmo-blog-optimizer'); ?>
+                </p>
+                <ol style="font-size: 13px; color: #50575e; line-height: 1.8; padding-left: 20px;">
+                    <li><?php esc_html_e('Click the button below to open LLMO Ready', 'llmo-blog-optimizer'); ?></li>
+                    <li><?php esc_html_e('Register or log in to your account', 'llmo-blog-optimizer'); ?></li>
+                    <li><?php esc_html_e('Your website URL is already pre-filled -- start the analysis', 'llmo-blog-optimizer'); ?></li>
+                    <li><?php esc_html_e('Copy the API token and paste it below', 'llmo-blog-optimizer'); ?></li>
+                </ol>
+                <p style="margin-top: 16px; margin-bottom: 4px;">
+                    <a href="<?php echo esc_url($connect_url); ?>" target="_blank" class="button button-primary" style="font-size: 14px; padding: 6px 20px; height: auto; background: #00d4ff; border-color: #00b8d9; color: #fff;">
+                        <span class="dashicons dashicons-external" style="margin-top: 3px; margin-right: 4px;"></span>
+                        <?php esc_html_e('Connect with LLMO Ready', 'llmo-blog-optimizer'); ?>
+                    </a>
+                    <a href="<?php echo esc_url($register_url); ?>" target="_blank" class="button button-secondary" style="font-size: 14px; padding: 6px 20px; height: auto; margin-left: 8px;">
+                        <?php esc_html_e('Create free account', 'llmo-blog-optimizer'); ?>
+                    </a>
+                </p>
+            </div>
+            <?php endif; ?>
             
             <form method="post" action="options.php">
                 <?php
