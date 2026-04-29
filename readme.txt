@@ -4,7 +4,7 @@ Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -152,6 +152,11 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 
 == Changelog ==
 
+= 1.0.8 =
+* New: Automatic API token transfer after login/registration (no manual copy needed)
+* New: Connected status indicator on settings page
+* Improved: Connect button redirects back to plugin with token automatically
+
 = 1.0.7 =
 * Fixed: Removed hidden files (.gitignore) from distribution package
 * Fixed: Auto-analysis for existing users logging in via plugin Connect button
@@ -192,6 +197,9 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 * Initial release of LLMO Ready - Blog Optimizer
 
 == Upgrade Notice ==
+
+= 1.0.8 =
+Automatic API token setup -- connect your account with one click.
 
 = 1.0.7 =
 Fix: auto-analysis for existing users, clean distribution package.
