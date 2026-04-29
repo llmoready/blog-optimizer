@@ -32,10 +32,12 @@ class LLMO_Blog_Optimizer_Admin {
      * After login/register, user is redirected back with ?api_token=xxx&connected=1
      */
     public function handle_api_token_callback() {
-        if (!isset($_GET['page']) || $_GET['page'] !== 'llmo-blog-optimizer') {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect callback from LLMO Ready, nonce not possible. Access is guarded by current_user_can('manage_options').
+        if (!isset($_GET['page']) || sanitize_text_field(wp_unslash($_GET['page'])) !== 'llmo-blog-optimizer') {
             return;
         }
         
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect callback, see above.
         if (!isset($_GET['api_token']) || !isset($_GET['connected'])) {
             return;
         }
@@ -44,6 +46,7 @@ class LLMO_Blog_Optimizer_Admin {
             return;
         }
         
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect callback, see above.
         $api_token = sanitize_text_field(wp_unslash($_GET['api_token']));
         
         if (!empty($api_token)) {
@@ -245,6 +248,7 @@ class LLMO_Blog_Optimizer_Admin {
             
             <?php settings_errors(); ?>
             
+            <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only flag, no data processing. ?>
             <?php if (isset($_GET['llmo_connected'])): ?>
             <div class="notice notice-success is-dismissible">
                 <p>
