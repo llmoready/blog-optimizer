@@ -52,9 +52,12 @@ class LLMO_Blog_Optimizer_Admin {
         if (!empty($api_token)) {
             update_option('llmo_blog_optimizer_api_key', $api_token);
             
-            // Redirect to clean URL to prevent token from showing in browser bar
-            wp_safe_redirect(admin_url('admin.php?page=llmo-blog-optimizer&llmo_connected=1'));
-            exit;
+            // Use JavaScript redirect instead of wp_safe_redirect to avoid conflicts
+            // with other plugins that may have already started output during admin_init.
+            $redirect_url = admin_url('admin.php?page=llmo-blog-optimizer&llmo_connected=1');
+            add_action('admin_notices', function () use ($redirect_url) {
+                echo '<script>window.location.replace(' . wp_json_encode(esc_url($redirect_url)) . ');</script>';
+            });
         }
     }
     
