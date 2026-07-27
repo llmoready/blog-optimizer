@@ -50,7 +50,7 @@ class LLMO_FAQ_Shortcode {
         $atts = shortcode_atts(array(
             'post_id' => get_the_ID(),
             'style' => 'accordion',
-            'title' => __('Frequently Asked Questions', 'llmo-blog-optimizer'),
+            'title' => __('Frequently Asked Questions', 'llmo-ready-blog-optimizer'),
             'show_title' => 'yes',
         ), $atts);
         

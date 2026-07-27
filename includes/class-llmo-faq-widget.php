@@ -21,9 +21,9 @@ class LLMO_FAQ_Widget extends WP_Widget {
     public function __construct() {
         parent::__construct(
             'llmo_faq_widget',
-            __('LLMO FAQ', 'llmo-blog-optimizer'),
+            __('LLMO FAQ', 'llmo-ready-blog-optimizer'),
             array(
-                'description' => __('Display AI-generated FAQs', 'llmo-blog-optimizer'),
+                'description' => __('Display AI-generated FAQs', 'llmo-ready-blog-optimizer'),
             )
         );
     }
@@ -36,7 +36,7 @@ class LLMO_FAQ_Widget extends WP_Widget {
             return;
         }
 
-        $title = !empty($instance['title']) ? $instance['title'] : __('FAQ', 'llmo-blog-optimizer');
+        $title = !empty($instance['title']) ? $instance['title'] : __('FAQ', 'llmo-ready-blog-optimizer');
         $post_id = get_the_ID();
         
         $faq_data = get_post_meta($post_id, '_llmo_faq', true);
@@ -66,11 +66,11 @@ class LLMO_FAQ_Widget extends WP_Widget {
      * Widget form
      */
     public function form($instance) {
-        $title = !empty($instance['title']) ? $instance['title'] : __('FAQ', 'llmo-blog-optimizer');
+        $title = !empty($instance['title']) ? $instance['title'] : __('FAQ', 'llmo-ready-blog-optimizer');
         ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('title')); ?>">
-                <?php esc_html_e('Title:', 'llmo-blog-optimizer'); ?>
+                <?php esc_html_e('Title:', 'llmo-ready-blog-optimizer'); ?>
             </label>
             <input class="widefat" 
                    id="<?php echo esc_attr($this->get_field_id('title')); ?>" 

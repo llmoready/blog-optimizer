@@ -47,39 +47,39 @@ class LLMO_Blog_Optimizer_Bulk {
         
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('LLMO Blog Optimizer', 'llmo-blog-optimizer'); ?></h1>
+            <h1><?php esc_html_e('LLMO Blog Optimizer', 'llmo-ready-blog-optimizer'); ?></h1>
             
             <div class="notice notice-info">
-                <p><strong><?php esc_html_e('Status:', 'llmo-blog-optimizer'); ?></strong> <?php esc_html_e('Plugin is active and ready to optimize your blog posts.', 'llmo-blog-optimizer'); ?></p>
+                <p><strong><?php esc_html_e('Status:', 'llmo-ready-blog-optimizer'); ?></strong> <?php esc_html_e('Plugin is active and ready to optimize your blog posts.', 'llmo-ready-blog-optimizer'); ?></p>
             </div>
             
             <div class="card">
-                <h2><?php esc_html_e('Statistics', 'llmo-blog-optimizer'); ?></h2>
+                <h2><?php esc_html_e('Statistics', 'llmo-ready-blog-optimizer'); ?></h2>
                 <table class="widefat" style="width: auto; min-width: 500px;">
                     <tr>
-                        <td style="width: 200px;"><strong><?php esc_html_e('Total Posts:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td style="width: 200px;"><strong><?php esc_html_e('Total Posts:', 'llmo-ready-blog-optimizer'); ?></strong></td>
                         <td>
                             <?php
                             /* translators: %s: Number of posts */
-                            printf(esc_html__('%s posts', 'llmo-blog-optimizer'), esc_html($total_posts));
+                            printf(esc_html__('%s posts', 'llmo-ready-blog-optimizer'), esc_html($total_posts));
                             ?>
                         </td>
                     </tr>
                     <tr style="background: #e8f5e9;">
-                        <td><strong><?php esc_html_e('Optimized Posts:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td><strong><?php esc_html_e('Optimized Posts:', 'llmo-ready-blog-optimizer'); ?></strong></td>
                         <td><strong>
                             <?php
                             /* translators: %1$s: Number of optimized posts, %2$s: Percentage */
-                            printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($optimized_posts), esc_html($total_posts > 0 ? round(($optimized_posts / $total_posts) * 100) : 0));
+                            printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-ready-blog-optimizer'), esc_html($optimized_posts), esc_html($total_posts > 0 ? round(($optimized_posts / $total_posts) * 100) : 0));
                             ?>
                         </strong></td>
                     </tr>
                     <tr style="background: #fff3e0;">
-                        <td><strong><?php esc_html_e('Not Optimized:', 'llmo-blog-optimizer'); ?></strong></td>
+                        <td><strong><?php esc_html_e('Not Optimized:', 'llmo-ready-blog-optimizer'); ?></strong></td>
                         <td>
                             <?php
                             /* translators: %1$s: Number of pending posts, %2$s: Percentage */
-                            printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-blog-optimizer'), esc_html($pending_posts), esc_html($total_posts > 0 ? round(($pending_posts / $total_posts) * 100) : 0));
+                            printf(esc_html__('%1$s posts (%2$s%%)', 'llmo-ready-blog-optimizer'), esc_html($pending_posts), esc_html($total_posts > 0 ? round(($pending_posts / $total_posts) * 100) : 0));
                             ?>
                         </td>
                     </tr>
@@ -87,20 +87,20 @@ class LLMO_Blog_Optimizer_Bulk {
             </div>
             
             <div class="card">
-                <h2><?php esc_html_e('Bulk Actions', 'llmo-blog-optimizer'); ?></h2>
-                <p><?php esc_html_e('Select posts to optimize or optimize all pending posts at once.', 'llmo-blog-optimizer'); ?></p>
+                <h2><?php esc_html_e('Bulk Actions', 'llmo-ready-blog-optimizer'); ?></h2>
+                <p><?php esc_html_e('Select posts to optimize or optimize all pending posts at once.', 'llmo-ready-blog-optimizer'); ?></p>
                 
                 <button type="button" class="button button-primary button-large" id="llmo-optimize-all-pending">
-                    <?php esc_html_e('Optimize All Pending Posts', 'llmo-blog-optimizer'); ?>
+                    <?php esc_html_e('Optimize All Pending Posts', 'llmo-ready-blog-optimizer'); ?>
                     (<?php echo esc_html($pending_posts); ?>)
                 </button>
                 
                 <button type="button" class="button button-secondary button-large" id="llmo-optimize-selected" style="margin-left: 10px;">
-                    <?php esc_html_e('Optimize Selected', 'llmo-blog-optimizer'); ?>
+                    <?php esc_html_e('Optimize Selected', 'llmo-ready-blog-optimizer'); ?>
                 </button>
                 
                 <div id="llmo-progress" style="display: none; margin-top: 20px;">
-                    <h3><?php esc_html_e('Optimization Progress', 'llmo-blog-optimizer'); ?></h3>
+                    <h3><?php esc_html_e('Optimization Progress', 'llmo-ready-blog-optimizer'); ?></h3>
                     <div style="background: #f0f0f0; height: 30px; border-radius: 5px; overflow: hidden;">
                         <div id="llmo-progress-bar" style="background: #0073aa; height: 100%; width: 0%; transition: width 0.3s;"></div>
                     </div>
@@ -115,11 +115,11 @@ class LLMO_Blog_Optimizer_Bulk {
                             <td class="check-column">
                                 <input type="checkbox" id="llmo-select-all">
                             </td>
-                            <th><?php esc_html_e('Title', 'llmo-blog-optimizer'); ?></th>
-                            <th><?php esc_html_e('Date', 'llmo-blog-optimizer'); ?></th>
-                            <th><?php esc_html_e('Status', 'llmo-blog-optimizer'); ?></th>
-                            <th><?php esc_html_e('AI Score', 'llmo-blog-optimizer'); ?></th>
-                            <th><?php esc_html_e('Actions', 'llmo-blog-optimizer'); ?></th>
+                            <th><?php esc_html_e('Title', 'llmo-ready-blog-optimizer'); ?></th>
+                            <th><?php esc_html_e('Date', 'llmo-ready-blog-optimizer'); ?></th>
+                            <th><?php esc_html_e('Status', 'llmo-ready-blog-optimizer'); ?></th>
+                            <th><?php esc_html_e('AI Score', 'llmo-ready-blog-optimizer'); ?></th>
+                            <th><?php esc_html_e('Actions', 'llmo-ready-blog-optimizer'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -133,9 +133,9 @@ class LLMO_Blog_Optimizer_Bulk {
                             </th>
                             <td>
                                 <?php if ($optimized): ?>
-                                    <span style="color: #4caf50; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('LLMO-optimized', 'llmo-blog-optimizer'); ?>">✓</span>
+                                    <span style="color: #4caf50; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('LLMO-optimized', 'llmo-ready-blog-optimizer'); ?>">✓</span>
                                 <?php else: ?>
-                                    <span style="color: #ff9800; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('Not optimized', 'llmo-blog-optimizer'); ?>">○</span>
+                                    <span style="color: #ff9800; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('Not optimized', 'llmo-ready-blog-optimizer'); ?>">○</span>
                                 <?php endif; ?>
                                 <strong>
                                     <a href="<?php echo esc_url(get_edit_post_link($post->ID)); ?>">
@@ -143,18 +143,18 @@ class LLMO_Blog_Optimizer_Bulk {
                                     </a>
                                 </strong>
                                 <?php if ($optimized): ?>
-                                    <span style="color: #4caf50; font-size: 11px; margin-left: 8px;">● <?php esc_html_e('AI-optimized', 'llmo-blog-optimizer'); ?></span>
+                                    <span style="color: #4caf50; font-size: 11px; margin-left: 8px;">● <?php esc_html_e('AI-optimized', 'llmo-ready-blog-optimizer'); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo esc_html(get_the_date('', $post->ID)); ?></td>
                             <td>
                                 <?php if ($optimized): ?>
                                     <span style="color: #4caf50;">
-                                        <?php esc_html_e('Optimized', 'llmo-blog-optimizer'); ?>
+                                        <?php esc_html_e('Optimized', 'llmo-ready-blog-optimizer'); ?>
                                     </span>
                                 <?php else: ?>
                                     <span style="color: #ff9800;">
-                                        <?php esc_html_e('Pending', 'llmo-blog-optimizer'); ?>
+                                        <?php esc_html_e('Pending', 'llmo-ready-blog-optimizer'); ?>
                                     </span>
                                 <?php endif; ?>
                             </td>
@@ -171,7 +171,7 @@ class LLMO_Blog_Optimizer_Bulk {
                                 <button type="button" 
                                         class="button button-small llmo-optimize-single" 
                                         data-post-id="<?php echo esc_attr($post->ID); ?>">
-                                    <?php $optimized ? esc_html_e('Re-optimize', 'llmo-blog-optimizer') : esc_html_e('Optimize', 'llmo-blog-optimizer'); ?>
+                                    <?php $optimized ? esc_html_e('Re-optimize', 'llmo-ready-blog-optimizer') : esc_html_e('Optimize', 'llmo-ready-blog-optimizer'); ?>
                                 </button>
                             </td>
                         </tr>
@@ -199,7 +199,7 @@ class LLMO_Blog_Optimizer_Bulk {
                 });
                 
                 if (pendingPosts.length === 0) {
-                    alert('<?php esc_html_e('No pending posts to optimize', 'llmo-blog-optimizer'); ?>');
+                    alert('<?php esc_html_e('No pending posts to optimize', 'llmo-ready-blog-optimizer'); ?>');
                     return;
                 }
                 
@@ -213,7 +213,7 @@ class LLMO_Blog_Optimizer_Bulk {
                 }).get();
                 
                 if (selectedPosts.length === 0) {
-                    alert('<?php esc_html_e('Please select posts to optimize', 'llmo-blog-optimizer'); ?>');
+                    alert('<?php esc_html_e('Please select posts to optimize', 'llmo-ready-blog-optimizer'); ?>');
                     return;
                 }
                 
@@ -236,7 +236,7 @@ class LLMO_Blog_Optimizer_Bulk {
                 
                 function optimizeNext() {
                     if (current >= total) {
-                        alert('<?php esc_html_e('Optimization complete!', 'llmo-blog-optimizer'); ?>');
+                        alert('<?php esc_html_e('Optimization complete!', 'llmo-ready-blog-optimizer'); ?>');
                         location.reload();
                         return;
                     }

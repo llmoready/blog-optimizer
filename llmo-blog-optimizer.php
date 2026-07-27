@@ -2,14 +2,14 @@
 /**
  * Plugin Name: LLMO Ready - Blog Optimizer
  * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
- * Version: 1.0.12
+ * Version: 1.0.13
  * Author: LLMO Ready by Libers GmbH
  * Author URI: https://libers.ai
- * Plugin URI: https://wordpress.org/plugins/llmo-blog-optimizer/
+ * Plugin URI: https://wordpress.org/plugins/llmo-ready-blog-optimizer/
  * Requires at least: 5.8
  * Tested up to: 7.0
  * Requires PHP: 7.4
- * Text Domain: llmo-blog-optimizer
+ * Text Domain: llmo-ready-blog-optimizer
  * Domain Path: /languages
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.12');
+define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.13');
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -96,7 +96,7 @@ class LLMO_Blog_Optimizer {
     public function add_cron_schedules($schedules) {
         $schedules['llmo_five_minutes'] = array(
             'interval' => 300,
-            'display' => __('Every 5 Minutes (LLMO)', 'llmo-blog-optimizer'),
+            'display' => __('Every 5 Minutes (LLMO)', 'llmo-ready-blog-optimizer'),
         );
         return $schedules;
     }
@@ -281,15 +281,15 @@ class LLMO_Blog_Optimizer {
     public function queue_optimization($post_id, $wait = true) {
         $api_key = get_option('llmo_blog_optimizer_api_key');
         if (empty($api_key)) {
-            return new WP_Error('no_api_key', __('API key not configured', 'llmo-blog-optimizer'));
+            return new WP_Error('no_api_key', __('API key not configured', 'llmo-ready-blog-optimizer'));
         }
         if (get_option('llmo_blog_optimizer_consent') !== 'yes') {
-            return new WP_Error('no_consent', __('User consent required. Please enable data processing consent in plugin settings.', 'llmo-blog-optimizer'));
+            return new WP_Error('no_consent', __('User consent required. Please enable data processing consent in plugin settings.', 'llmo-ready-blog-optimizer'));
         }
         
         $post = get_post($post_id);
         if (!$post) {
-            return new WP_Error('invalid_post', __('Invalid post ID', 'llmo-blog-optimizer'));
+            return new WP_Error('invalid_post', __('Invalid post ID', 'llmo-ready-blog-optimizer'));
         }
         
         $api_client = $this->get_api_client();
@@ -413,7 +413,7 @@ class LLMO_Blog_Optimizer {
         foreach ($post_types as $post_type) {
             add_meta_box(
                 'llmo_blog_optimizer',
-                __('LLMO Blog Optimizer', 'llmo-blog-optimizer'),
+                __('LLMO Blog Optimizer', 'llmo-ready-blog-optimizer'),
                 array($this, 'render_meta_box'),
                 $post_type,
                 'side',
@@ -440,19 +440,19 @@ class LLMO_Blog_Optimizer {
                 <div style="background: #f0f0f1; border-left: 4px solid #d63638; padding: 12px; margin-bottom: 15px;">
                     <p style="margin: 0 0 8px 0; font-weight: 600;">
                         <span class="dashicons dashicons-warning" style="color: #d63638; vertical-align: middle;"></span>
-                        <?php esc_html_e('Setup Required', 'llmo-blog-optimizer'); ?>
+                        <?php esc_html_e('Setup Required', 'llmo-ready-blog-optimizer'); ?>
                     </p>
                     <ul style="margin: 0; padding-left: 20px; font-size: 12px;">
                         <?php if (!$has_api_key): ?>
-                            <li><?php esc_html_e('Enter your API key in Settings', 'llmo-blog-optimizer'); ?></li>
+                            <li><?php esc_html_e('Enter your API key in Settings', 'llmo-ready-blog-optimizer'); ?></li>
                         <?php endif; ?>
                         <?php if (!$has_consent): ?>
-                            <li><?php esc_html_e('Give consent to data processing', 'llmo-blog-optimizer'); ?></li>
+                            <li><?php esc_html_e('Give consent to data processing', 'llmo-ready-blog-optimizer'); ?></li>
                         <?php endif; ?>
                     </ul>
                     <p style="margin: 10px 0 0 0;">
                         <a href="<?php echo esc_url(admin_url('admin.php?page=llmo-blog-optimizer')); ?>" class="button button-small">
-                            <?php esc_html_e('Go to Settings', 'llmo-blog-optimizer'); ?>
+                            <?php esc_html_e('Go to Settings', 'llmo-ready-blog-optimizer'); ?>
                         </a>
                     </p>
                 </div>
@@ -461,27 +461,27 @@ class LLMO_Blog_Optimizer {
             <?php if ($pending && !$optimized): ?>
                 <p>
                     <span class="dashicons dashicons-update" style="color: #dba617;"></span>
-                    <strong><?php esc_html_e('Optimization pending…', 'llmo-blog-optimizer'); ?></strong>
+                    <strong><?php esc_html_e('Optimization pending…', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
-                <p class="description"><?php esc_html_e('Results will be applied automatically within a few minutes.', 'llmo-blog-optimizer'); ?></p>
+                <p class="description"><?php esc_html_e('Results will be applied automatically within a few minutes.', 'llmo-ready-blog-optimizer'); ?></p>
             <?php endif; ?>
             
             <?php if ($optimized): ?>
                 <p>
                     <span style="color: #00a32a; font-size: 16px;"><span class="dashicons dashicons-yes-alt"></span></span>
-                    <strong><?php esc_html_e('Optimized', 'llmo-blog-optimizer'); ?></strong>
+                    <strong><?php esc_html_e('Optimized', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <?php if ($optimized_at): ?>
                     <p class="description">
                         <?php
                         /* translators: %s: localized date and time of last optimization */
-                        printf(esc_html__('Last optimized: %s', 'llmo-blog-optimizer'), esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($optimized_at))));
+                        printf(esc_html__('Last optimized: %s', 'llmo-ready-blog-optimizer'), esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($optimized_at))));
                         ?>
                     </p>
                 <?php endif; ?>
                 <?php if ($ai_score): ?>
                     <p>
-                        <strong><?php esc_html_e('AI Readiness Score:', 'llmo-blog-optimizer'); ?></strong><br>
+                        <strong><?php esc_html_e('AI Readiness Score:', 'llmo-ready-blog-optimizer'); ?></strong><br>
                         <span style="font-size: 24px; font-weight: bold; color: <?php echo $ai_score >= 80 ? '#00a32a' : ($ai_score >= 60 ? '#ff9800' : '#d63638'); ?>">
                             <?php echo esc_html($ai_score); ?>/100
                         </span>
@@ -489,25 +489,25 @@ class LLMO_Blog_Optimizer {
                 <?php endif; ?>
                 <p style="margin-top: 15px;">
                     <button type="button" class="button button-secondary llmo-reoptimize" data-post-id="<?php echo esc_attr($post->ID); ?>" <?php disabled(!$can_optimize); ?>>
-                        <?php esc_html_e('Re-optimize', 'llmo-blog-optimizer'); ?>
+                        <?php esc_html_e('Re-optimize', 'llmo-ready-blog-optimizer'); ?>
                     </button>
                 </p>
             <?php else: ?>
                 <p>
                     <span style="color: #d63638; font-size: 16px;"><span class="dashicons dashicons-marker"></span></span>
-                    <strong><?php esc_html_e('Not optimized yet', 'llmo-blog-optimizer'); ?></strong>
+                    <strong><?php esc_html_e('Not optimized yet', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <p style="margin-top: 15px;">
                     <button type="button" class="button button-primary llmo-optimize" data-post-id="<?php echo esc_attr($post->ID); ?>" <?php disabled(!$can_optimize); ?>>
-                        <?php esc_html_e('Optimize Now', 'llmo-blog-optimizer'); ?>
+                        <?php esc_html_e('Optimize Now', 'llmo-ready-blog-optimizer'); ?>
                     </button>
                 </p>
                 <p class="description llmo-optimize-hint" style="display:none; margin-top:8px;">
-                    <?php esc_html_e('Please wait — this can take up to a few minutes…', 'llmo-blog-optimizer'); ?>
+                    <?php esc_html_e('Please wait — this can take up to a few minutes…', 'llmo-ready-blog-optimizer'); ?>
                 </p>
                 <?php if (!$can_optimize): ?>
                     <p class="description" style="color: #d63638; margin-top: 8px;">
-                        <?php esc_html_e('Complete setup in Settings to enable optimization.', 'llmo-blog-optimizer'); ?>
+                        <?php esc_html_e('Complete setup in Settings to enable optimization.', 'llmo-ready-blog-optimizer'); ?>
                     </p>
                 <?php endif; ?>
             <?php endif; ?>

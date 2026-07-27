@@ -101,7 +101,7 @@ class LLMO_API_Client {
             $status = isset($article['status']) ? $article['status'] : '';
 
             if ($status === 'failed') {
-                return new WP_Error('optimization_failed', __('Optimization failed on the server.', 'llmo-blog-optimizer'));
+                return new WP_Error('optimization_failed', __('Optimization failed on the server.', 'llmo-ready-blog-optimizer'));
             }
 
             if ($status === 'analyzed' && is_array($article)) {
@@ -117,7 +117,7 @@ class LLMO_API_Client {
             return $last_analyzed;
         }
 
-        return new WP_Error('optimization_timeout', __('Optimization did not complete in time.', 'llmo-blog-optimizer'));
+        return new WP_Error('optimization_timeout', __('Optimization did not complete in time.', 'llmo-ready-blog-optimizer'));
     }
     
     /**
@@ -157,7 +157,7 @@ class LLMO_API_Client {
         
         if ($response_code >= 400) {
             $error_data = json_decode($response_body, true);
-            $error_message = isset($error_data['message']) ? $error_data['message'] : esc_html__('API request failed', 'llmo-blog-optimizer');
+            $error_message = isset($error_data['message']) ? $error_data['message'] : esc_html__('API request failed', 'llmo-ready-blog-optimizer');
             
             return new WP_Error('api_error', $error_message, array(
                 'status' => $response_code,
@@ -168,7 +168,7 @@ class LLMO_API_Client {
         $data = json_decode($response_body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return new WP_Error('json_error', esc_html__('Invalid JSON response from API', 'llmo-blog-optimizer'));
+            return new WP_Error('json_error', esc_html__('Invalid JSON response from API', 'llmo-ready-blog-optimizer'));
         }
         
         return $data;
