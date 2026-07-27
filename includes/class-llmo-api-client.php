@@ -38,7 +38,7 @@ class LLMO_API_Client {
      * @param string $website_domain Current website domain for validation
      * @param string $api_endpoint API base URL
      */
-    public function __construct($api_token, $website_domain = '', $api_endpoint = 'https://llmoready.com/api') {
+    public function __construct($api_token, $website_domain = '', $api_endpoint = 'https://api.libers.ai/api') {
         $this->api_token = $api_token;
         $this->website_domain = $website_domain ? $website_domain : get_site_url();
         $this->api_endpoint = rtrim($api_endpoint, '/');
@@ -75,6 +75,50 @@ class LLMO_API_Client {
         
         return $response;
     }
+
+    /**
+     * Poll until article optimization is complete (manual Optimize Now / AJAX only).
+     *
+     * Job timeout is 300s — 24 × 10s = 240s stays under that with room for queue lag.
+     *
+     * @param string $url
+     * @param int    $max_attempts
+     * @param int    $delay_seconds
+     * @return array|WP_Error
+     */
+    public function wait_for_optimization($url, $max_attempts = 24, $delay_seconds = 10) {
+        $last_analyzed = null;
+
+        for ($i = 0; $i < $max_attempts; $i++) {
+            sleep($delay_seconds);
+
+            $result = $this->get_article_by_url($url);
+            if (is_wp_error($result)) {
+                continue;
+            }
+
+            $article = isset($result['article']) ? $result['article'] : null;
+            $status = isset($article['status']) ? $article['status'] : '';
+
+            if ($status === 'failed') {
+                return new WP_Error('optimization_failed', __('Optimization failed on the server.', 'llmo-blog-optimizer'));
+            }
+
+            if ($status === 'analyzed' && is_array($article)) {
+                $last_analyzed = $article;
+                // OG-Job läuft oft noch nach analyzed — warten bis URL da ist.
+                if (!empty($article['og_image'])) {
+                    return $article;
+                }
+            }
+        }
+
+        if ($last_analyzed) {
+            return $last_analyzed;
+        }
+
+        return new WP_Error('optimization_timeout', __('Optimization did not complete in time.', 'llmo-blog-optimizer'));
+    }
     
     /**
      * Make API request with token authentication
@@ -89,7 +133,7 @@ class LLMO_API_Client {
         
         $args = array(
             'method' => $method,
-            'timeout' => 60,
+            'timeout' => 90,
             'headers' => array(
                 'Authorization' => 'Bearer ' . $this->api_token,
                 'X-Website-Domain' => $this->website_domain,

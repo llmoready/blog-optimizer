@@ -32,6 +32,10 @@ class LLMO_FAQ_Widget extends WP_Widget {
      * Widget output
      */
     public function widget($args, $instance) {
+        if (!is_singular()) {
+            return;
+        }
+
         $title = !empty($instance['title']) ? $instance['title'] : __('FAQ', 'llmo-blog-optimizer');
         $post_id = get_the_ID();
         

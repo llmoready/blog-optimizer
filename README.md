@@ -32,7 +32,7 @@ Automatically optimize your WordPress blog posts for better visibility in AI sea
 ## Configuration
 
 1. Go to **LLMO Optimizer > Settings**
-2. Get your free API key from [llmoready.com](https://llmoready.com)
+2. Get your free API key from [libers.ai](https://libers.ai)
 3. Enter your API key
 4. Click **Test Connection**
 5. Configure auto-optimization settings
@@ -81,12 +81,12 @@ This plugin sends post content to the LLMO Ready API for analysis. The API:
 - Is GDPR compliant
 - Uses HTTPS encryption
 
-For more information, see our [Privacy Policy](https://llmoready.com/privacy).
+For more information, see our [Privacy Policy](https://libers.ai/privacy).
 
 ## Support
 
-- **Documentation**: https://llmoready.com/documentation/
-- **Email**: support@llmoready.com
+- **Documentation**: https://docs.libers.ai/wordpress-plugin
+- **Email**: support@libers.ai
 
 ## Development
 
@@ -132,4 +132,4 @@ GPL v2 or later - see [LICENSE](LICENSE) for details.
 
 ## Credits
 
-Developed by [LLMO Ready](https://llmoready.com)
+Developed by [Libers GmbH](https://libers.ai)

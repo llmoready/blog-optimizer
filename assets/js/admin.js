@@ -60,6 +60,7 @@
             $.ajax({
                 url: llmoAdmin.ajaxurl,
                 type: 'POST',
+                timeout: 300000,
                 data: {
                     action: 'llmo_optimize_post',
                     nonce: llmoAdmin.nonce,

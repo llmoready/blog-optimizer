@@ -101,16 +101,25 @@ class LLMO_Blog_Optimizer_Admin {
         register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_api_key', array(
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field',
+            'default' => '',
         ));
         
         register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_auto_optimize', array(
             'type' => 'string',
+            'sanitize_callback' => array($this, 'sanitize_yes_checkbox'),
             'default' => 'yes',
         ));
         
         register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_post_types', array(
             'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_post_types'),
             'default' => array('post'),
+        ));
+
+        register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_consent', array(
+            'type' => 'string',
+            'sanitize_callback' => array($this, 'sanitize_yes_checkbox'),
+            'default' => '',
         ));
         
         add_settings_section(
@@ -127,11 +136,6 @@ class LLMO_Blog_Optimizer_Admin {
             'llmo-blog-optimizer',
             'llmo_blog_optimizer_api_section'
         );
-        
-        register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_consent', array(
-            'type' => 'string',
-            'default' => '',
-        ));
         
         add_settings_field(
             'llmo_blog_optimizer_consent',
@@ -185,9 +189,11 @@ class LLMO_Blog_Optimizer_Admin {
         );
         
         foreach ($org_fields as $field_id => $field_label) {
+            $sanitize = ($field_id === 'llmo_organization_email') ? 'sanitize_email' : 'sanitize_text_field';
             register_setting('llmo_blog_optimizer_settings', $field_id, array(
                 'type' => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
+                'sanitize_callback' => $sanitize,
+                'default' => '',
             ));
             
             add_settings_field(
@@ -199,6 +205,43 @@ class LLMO_Blog_Optimizer_Admin {
                 array('field_id' => $field_id)
             );
         }
+    }
+
+    /**
+     * Sanitize yes/empty checkbox options (clears when unchecked).
+     *
+     * @param mixed $value Raw option value.
+     * @return string
+     */
+    public function sanitize_yes_checkbox($value) {
+        return ($value === 'yes') ? 'yes' : '';
+    }
+
+    /**
+     * Sanitize selected public post types.
+     *
+     * @param mixed $value Raw option value.
+     * @return array
+     */
+    public function sanitize_post_types($value) {
+        if (!is_array($value)) {
+            return array('post');
+        }
+
+        $public_types = array_keys(get_post_types(array('public' => true), 'names'));
+        $sanitized = array();
+
+        foreach ($value as $post_type) {
+            $post_type = sanitize_key($post_type);
+            if ($post_type === '') {
+                continue;
+            }
+            if (in_array($post_type, $public_types, true) && $post_type !== 'attachment') {
+                $sanitized[] = $post_type;
+            }
+        }
+
+        return !empty($sanitized) ? array_values(array_unique($sanitized)) : array('post');
     }
     
     /**
@@ -243,8 +286,8 @@ class LLMO_Blog_Optimizer_Admin {
         $api_key = get_option('llmo_blog_optimizer_api_key', '');
         $site_url = rawurlencode(get_site_url());
         $return_url = rawurlencode(admin_url('admin.php?page=llmo-blog-optimizer'));
-        $connect_url = 'https://app.llmoready.com/login?site=' . $site_url . '&from=plugin&return_url=' . $return_url;
-        $register_url = 'https://llmoready.com/plugin/register?site=' . $site_url . '&return_url=' . $return_url;
+        $connect_url = 'https://app.libers.ai/login?site=' . $site_url . '&from=plugin&return_url=' . $return_url;
+        $register_url = 'https://libers.ai/plugin/register?site=' . $site_url . '&return_url=' . $return_url;
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
@@ -296,7 +339,7 @@ class LLMO_Blog_Optimizer_Admin {
                     <?php esc_html_e('Your website is connected. Blog posts will be automatically optimized with Schema.org markup for better AI visibility.', 'llmo-blog-optimizer'); ?>
                 </p>
                 <p style="margin-top: 12px; margin-bottom: 4px;">
-                    <a href="https://app.llmoready.com/websites" target="_blank" class="button button-secondary" style="font-size: 13px; padding: 4px 16px; height: auto;">
+                    <a href="https://app.libers.ai/websites" target="_blank" class="button button-secondary" style="font-size: 13px; padding: 4px 16px; height: auto;">
                         <span class="dashicons dashicons-external" style="margin-top: 3px; margin-right: 4px;"></span>
                         <?php esc_html_e('Open LLMO Ready Dashboard', 'llmo-blog-optimizer'); ?>
                     </a>
@@ -352,7 +395,7 @@ class LLMO_Blog_Optimizer_Admin {
             printf(
                 /* translators: %s: Link to LLMO Ready app dashboard */
                 esc_html__('Get your API key from %s', 'llmo-blog-optimizer'),
-                '<a href="https://app.llmoready.com/websites" target="_blank">app.llmoready.com</a>'
+                '<a href="https://app.libers.ai/websites" target="_blank">app.libers.ai</a>'
             );
             ?>
         </p>
@@ -367,15 +410,16 @@ class LLMO_Blog_Optimizer_Admin {
         $has_consent = ($consent === 'yes');
         ?>
         <label style="display: block; margin-bottom: 10px;">
+            <input type="hidden" name="llmo_blog_optimizer_consent" value="">
             <input type="checkbox" 
                    name="llmo_blog_optimizer_consent" 
                    value="yes" 
                    <?php checked($has_consent); ?>>
-            <strong><?php esc_html_e('I consent to sending my post content to LLMOReady.com for AI optimization and processing.', 'llmo-blog-optimizer'); ?></strong>
+            <strong><?php esc_html_e('I consent to sending my post content to Libers GmbH for AI optimization and processing.', 'llmo-blog-optimizer'); ?></strong>
         </label>
         
         <p class="description" style="margin-left: 24px; margin-top: 8px;">
-            <?php esc_html_e('By checking this box, you agree that your post content (title, content, excerpt) will be sent to LLMOReady.com via secure HTTPS for AI optimization and analysis.', 'llmo-blog-optimizer'); ?>
+            <?php esc_html_e('By checking this box, you agree that your post content (title, content, excerpt) will be sent to Libers GmbH via secure HTTPS for AI optimization and analysis.', 'llmo-blog-optimizer'); ?>
         </p>
         
         <p class="description" style="margin-left: 24px; margin-top: 8px;">
@@ -383,8 +427,8 @@ class LLMO_Blog_Optimizer_Admin {
             printf(
                 /* translators: %1$s: Privacy Policy link, %2$s: Terms of Use link */
                 esc_html__('Please review our %1$s and %2$s before proceeding.', 'llmo-blog-optimizer'),
-                '<a href="https://llmoready.com/privacy" target="_blank">' . esc_html__('Privacy Policy', 'llmo-blog-optimizer') . '</a>',
-                '<a href="https://llmoready.com/terms" target="_blank">' . esc_html__('Terms of Use', 'llmo-blog-optimizer') . '</a>'
+                '<a href="https://libers.ai/privacy" target="_blank">' . esc_html__('Privacy Policy', 'llmo-blog-optimizer') . '</a>',
+                '<a href="https://libers.ai/terms" target="_blank">' . esc_html__('Terms of Use', 'llmo-blog-optimizer') . '</a>'
             );
             ?>
         </p>
@@ -423,6 +467,7 @@ class LLMO_Blog_Optimizer_Admin {
         $auto_optimize = get_option('llmo_blog_optimizer_auto_optimize', 'yes');
         ?>
         <label>
+            <input type="hidden" name="llmo_blog_optimizer_auto_optimize" value="">
             <input type="checkbox" 
                    name="llmo_blog_optimizer_auto_optimize" 
                    value="yes" 
@@ -437,10 +482,16 @@ class LLMO_Blog_Optimizer_Admin {
      */
     public function render_post_types_field() {
         $selected_post_types = get_option('llmo_blog_optimizer_post_types', array('post'));
+        if (!is_array($selected_post_types)) {
+            $selected_post_types = array('post');
+        }
         $post_types = get_post_types(array('public' => true), 'objects');
+
+        // Hidden empty value ensures unchecking all post types still submits the field.
+        echo '<input type="hidden" name="llmo_blog_optimizer_post_types[]" value="">';
         
         foreach ($post_types as $post_type) {
-            if (in_array($post_type->name, array('attachment', 'revision', 'nav_menu_item'))) {
+            if (in_array($post_type->name, array('attachment', 'revision', 'nav_menu_item'), true)) {
                 continue;
             }
             ?>
@@ -448,7 +499,7 @@ class LLMO_Blog_Optimizer_Admin {
                 <input type="checkbox" 
                        name="llmo_blog_optimizer_post_types[]" 
                        value="<?php echo esc_attr($post_type->name); ?>" 
-                       <?php checked(in_array($post_type->name, $selected_post_types)); ?>>
+                       <?php checked(in_array($post_type->name, $selected_post_types, true)); ?>>
                 <?php echo esc_html($post_type->label); ?>
             </label>
             <?php

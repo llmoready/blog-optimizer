@@ -2,13 +2,13 @@
 Contributors: llmoready
 Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.8
+Stable tag: 1.0.12
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Automatically adds Schema.org JSON-LD markup with AI-optimized content for better visibility in AI search engines (ChatGPT, Google SGE, Perplexity).
+Adds Schema.org markup with AI-optimized content to blog posts for better AI search visibility.
 
 == Description ==
 
@@ -32,7 +32,7 @@ LLMO Blog Optimizer automatically enhances your blog posts for better visibility
 = How It Works =
 
 1. Install and activate the plugin
-2. Get your free API key from [llmoready.com](https://llmoready.com)
+2. Get your free API key from [libers.ai](https://libers.ai)
 3. Enter your API key in Settings
 4. Your posts will be automatically optimized when published
 5. Or use the Bulk Optimizer to optimize existing posts
@@ -52,6 +52,7 @@ This plugin sends your post content to the LLMO Ready API for analysis and optim
 - Post author name
 - Publication date
 - Post URL
+- Featured image URL (if set)
 
 **What we do NOT collect:**
 - Personal user information
@@ -60,24 +61,25 @@ This plugin sends your post content to the LLMO Ready API for analysis and optim
 - Visitor data
 
 For complete details, please review:
-- [Privacy Policy](https://llmoready.com/privacy)
-- [Terms of Use](https://llmoready.com/terms)
+- [Privacy Policy](https://libers.ai/privacy)
+- [Terms of Use](https://libers.ai/terms)
 
 = External Service =
 
-This plugin relies on the LLMOReady.com API for AI optimization functionality. The following data is sent to our servers:
+This plugin relies on the Libers Suite API for AI optimization functionality. The following data is sent to our servers:
 
 - Post title, content, and excerpt
 - Post author name (public)
 - Publication date
 - Post URL
+- Featured image URL (if set)
 
 **User Consent Required:** You must explicitly consent to data processing in plugin settings before any content is transmitted. No data is sent without your explicit consent.
 
 **Service Terms:**
-- Service: https://llmoready.com
-- Terms of Use: https://llmoready.com/terms
-- Privacy Policy: https://llmoready.com/privacy
+- Service: https://libers.ai
+- Terms of Use: https://libers.ai/terms
+- Privacy Policy: https://libers.ai/privacy
 - Location: Germany (GDPR compliant)
 
 == Installation ==
@@ -99,7 +101,7 @@ This plugin relies on the LLMOReady.com API for AI optimization functionality. T
 = Configuration =
 
 1. Go to LLMO Optimizer > Settings
-2. Enter your API key from [llmoready.com](https://llmoready.com)
+2. Enter your API key from [libers.ai](https://libers.ai)
 3. Click "Test Connection" to verify
 4. Configure auto-optimization settings
 5. Select which post types to optimize
@@ -108,7 +110,7 @@ This plugin relies on the LLMOReady.com API for AI optimization functionality. T
 
 = Do I need an API key? =
 
-Yes, you need a free API key from [llmoready.com](https://llmoready.com). The free tier includes optimization for up to 100 posts per month.
+Yes, you need a free API key from [libers.ai](https://libers.ai). The free tier includes optimization for up to 100 posts per month.
 
 = Which post types are supported? =
 
@@ -140,17 +142,27 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release
-* Auto-optimization for new posts
-* Bulk optimization tool
-* Schema.org Article markup generation
-* FAQ generation
-* Key takeaways extraction
-* AI Readiness Score
-* Support for multiple post types
+= 1.0.12 =
+* Fixed: Short description kept under 150 characters (WordPress.org import warning)
+* Fixed: Settings sanitize callbacks for consent, auto-optimize, and post types
+* Fixed: Unchecking consent or auto-optimize now clears the stored option
+* Fixed: Uninstall removes organization options, OG/pending meta, and cron events
+* Fixed: readme discloses featured image URL in API payload
+* Fixed: Removed duplicate Changelog section in readme.txt
 
-== Changelog ==
+= 1.0.11 =
+* Fixed: Plugin URI and Author URI must differ (WordPress.org review). Plugin URI now points to the wordpress.org plugin page, Author URI to libers.ai
+
+= 1.0.10 =
+* Fix: Optimize Now waits for async API job instead of writing empty meta
+* New: Open Graph tags (title/description/image) with Yoast/Rank Math duplicate protection
+* New: Auto-optimize is fire-and-forget; cron polls pending posts every 5 minutes
+* Fix: FAQ widget only renders on singular views
+
+= 1.0.9 =
+* Fix: Plugin- und API-URLs auf libers.ai migriert
+* Fix: API-Client-Konstruktor übergab Website-Domain fälschlich als API-Endpoint
+* Fix: Datenschutz-/Nutzungsbedingungen-Links aktualisiert
 
 = 1.0.8 =
 * New: Automatic API token transfer after login/registration (no manual copy needed)
@@ -198,6 +210,9 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 
 == Upgrade Notice ==
 
+= 1.0.12 =
+WordPress.org compliance fixes: settings sanitization, consent clear, uninstall cleanup, and readme disclosure.
+
 = 1.0.8 =
 Automatic API token setup -- connect your account with one click.
 
@@ -228,9 +243,9 @@ Initial release.
 == Support ==
 
 For support, please visit:
-* Documentation: https://docs.llmoready.com/wordpress-plugin
+* Documentation: https://docs.libers.ai/wordpress-plugin
 * Support Forum: https://wordpress.org/support/plugin/llmo-blog-optimizer/
-* Email: support@llmoready.com
+* Email: support@libers.ai
 
 == Privacy Policy ==
 
@@ -254,6 +269,7 @@ This plugin is GDPR compliant. Users must opt-in via checkbox in settings.
 * Post author name (public information)
 * Publication date
 * Post URL
+* Featured image URL (if set)
 
 **What is NOT sent:**
 * User email addresses
@@ -263,6 +279,6 @@ This plugin is GDPR compliant. Users must opt-in via checkbox in settings.
 * Any personal user information
 
 For complete details:
-* [Privacy Policy](https://llmoready.com/privacy)
-* [Terms of Use](https://llmoready.com/terms)
-* [API Documentation](https://docs.llmoready.com)
+* [Privacy Policy](https://libers.ai/privacy)
+* [Terms of Use](https://libers.ai/terms)
+* [API Documentation](https://docs.libers.ai)
