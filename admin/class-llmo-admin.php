@@ -14,6 +14,13 @@ if (!defined('ABSPATH')) {
  * Admin Class
  */
 class LLMO_Blog_Optimizer_Admin {
+
+    /**
+     * Optional post-connect redirect URL (set during admin_init, consumed in enqueue).
+     *
+     * @var string
+     */
+    private $post_connect_redirect = '';
     
     /**
      * Constructor
@@ -51,13 +58,9 @@ class LLMO_Blog_Optimizer_Admin {
         
         if (!empty($api_token)) {
             update_option('llmo_blog_optimizer_api_key', $api_token);
-            
-            // Use JavaScript redirect instead of wp_safe_redirect to avoid conflicts
-            // with other plugins that may have already started output during admin_init.
-            $redirect_url = admin_url('admin.php?page=llmo-blog-optimizer&llmo_connected=1');
-            add_action('admin_notices', function () use ($redirect_url) {
-                echo '<script>window.location.replace(' . wp_json_encode(esc_url($redirect_url)) . ');</script>';
-            });
+
+            // Enqueued via admin_enqueue_scripts (no raw <script> echo).
+            $this->post_connect_redirect = admin_url('admin.php?page=llmo-blog-optimizer&llmo_connected=1');
         }
     }
     
@@ -267,7 +270,7 @@ class LLMO_Blog_Optimizer_Admin {
             true
         );
         
-        wp_localize_script('llmo-blog-optimizer-admin', 'llmoAdmin', array(
+        $localize = array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('llmo_admin_nonce'),
             'strings' => array(
@@ -275,8 +278,21 @@ class LLMO_Blog_Optimizer_Admin {
                 'optimized' => __('Optimized!', 'llmo-ready-blog-optimizer'),
                 'error' => __('Error occurred', 'llmo-ready-blog-optimizer'),
                 'confirm_reoptimize' => __('Are you sure you want to re-optimize this post?', 'llmo-ready-blog-optimizer'),
+                'testing' => __('Testing...', 'llmo-ready-blog-optimizer'),
+                'testConnection' => __('Test Connection', 'llmo-ready-blog-optimizer'),
+                'reoptimize' => __('Re-optimize', 'llmo-ready-blog-optimizer'),
+                'optimizeNow' => __('Optimize Now', 'llmo-ready-blog-optimizer'),
+                'noPending' => __('No pending posts to optimize', 'llmo-ready-blog-optimizer'),
+                'selectPosts' => __('Please select posts to optimize', 'llmo-ready-blog-optimizer'),
+                'optimizationComplete' => __('Optimization complete!', 'llmo-ready-blog-optimizer'),
             ),
-        ));
+        );
+
+        if (!empty($this->post_connect_redirect)) {
+            $localize['redirectUrl'] = esc_url_raw($this->post_connect_redirect);
+        }
+
+        wp_localize_script('llmo-blog-optimizer-admin', 'llmoAdmin', $localize);
     }
     
     /**

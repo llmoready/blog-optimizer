@@ -4,7 +4,7 @@ Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.13
+Stable tag: 1.0.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -141,6 +141,10 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 5. Generated Schema.org markup example
 
 == Changelog ==
+
+= 1.0.14 =
+* Fixed: Enqueue admin JS via wp_enqueue_script instead of inline script tags
+* Fixed: JSON-LD output uses JSON_HEX_TAG to prevent script breakout
 
 = 1.0.13 =
 * Fixed: Text Domain aligned to plugin slug `llmo-ready-blog-optimizer` (Plugin Check)

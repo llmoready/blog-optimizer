@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LLMO Ready - Blog Optimizer
  * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
- * Version: 1.0.13
+ * Version: 1.0.14
  * Author: LLMO Ready by Libers GmbH
  * Author URI: https://libers.ai
  * Plugin URI: https://wordpress.org/plugins/llmo-ready-blog-optimizer/
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.13');
+define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.14');
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -512,14 +512,6 @@ class LLMO_Blog_Optimizer {
                 <?php endif; ?>
             <?php endif; ?>
         </div>
-        <script>
-        (function($){
-            $(document).on('click', '.llmo-optimize, .llmo-reoptimize', function(){
-                $(this).prop('disabled', true);
-                $('.llmo-optimize-hint').show();
-            });
-        })(jQuery);
-        </script>
         <?php
     }
     
@@ -535,6 +527,20 @@ class LLMO_Blog_Optimizer {
         }
     }
     
+    /**
+     * Encode JSON-LD safely for embedding inside a <script> tag.
+     * JSON_HEX_TAG prevents a literal </script> from breaking out of the element.
+     *
+     * @param mixed $data Schema data.
+     * @return string
+     */
+    private function encode_json_ld($data) {
+        return wp_json_encode(
+            $data,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+    }
+
     public function output_schema_markup() {
         if (!is_singular() && !is_front_page() && !is_home()) {
             return;
@@ -550,10 +556,13 @@ class LLMO_Blog_Optimizer {
         if (empty($schema)) {
             return;
         }
-        
-        echo '<script type="application/ld+json">' . "\n";
-        echo wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        echo "\n" . '</script>' . "\n";
+
+        $schema_json = $this->encode_json_ld($schema);
+        if (false !== $schema_json) {
+            echo '<script type="application/ld+json">' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
+            echo $schema_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
+            echo "\n" . '</script>' . "\n";
+        }
         
         $faq_data = get_post_meta($post_id, '_llmo_faq', true);
         if (!empty($faq_data) && is_array($faq_data)) {
@@ -578,9 +587,12 @@ class LLMO_Blog_Optimizer {
             }
             
             if (!empty($faq_schema['mainEntity'])) {
-                echo '<script type="application/ld+json">' . "\n";
-                echo wp_json_encode($faq_schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-                echo "\n" . '</script>' . "\n";
+                $faq_json = $this->encode_json_ld($faq_schema);
+                if (false !== $faq_json) {
+                    echo '<script type="application/ld+json">' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
+                    echo $faq_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
+                    echo "\n" . '</script>' . "\n";
+                }
             }
         }
     }
