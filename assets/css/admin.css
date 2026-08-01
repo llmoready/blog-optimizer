@@ -58,3 +58,289 @@
 .wp-list-table .check-column {
     width: 2.2em;
 }
+
+/* Meta box */
+.llmo-setup-notice {
+    background: #f0f0f1;
+    border-left: 4px solid #d63638;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.llmo-setup-notice__title {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.llmo-setup-notice__icon {
+    color: #d63638;
+    vertical-align: middle;
+}
+
+.llmo-setup-notice__list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 12px;
+}
+
+.llmo-setup-notice__actions {
+    margin: 10px 0 0 0;
+}
+
+.llmo-status-pending {
+    color: #dba617;
+}
+
+.llmo-status-ok {
+    color: #00a32a;
+    font-size: 16px;
+}
+
+.llmo-status-missing {
+    color: #d63638;
+    font-size: 16px;
+}
+
+.llmo-score {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.llmo-score--high {
+    color: #00a32a;
+}
+
+.llmo-score--mid {
+    color: #ff9800;
+}
+
+.llmo-score--low {
+    color: #d63638;
+}
+
+.llmo-meta-actions {
+    margin-top: 15px;
+}
+
+.llmo-optimize-hint {
+    display: none;
+    margin-top: 8px;
+}
+
+.llmo-setup-required {
+    color: #d63638;
+    margin-top: 8px;
+}
+
+/* Settings connect cards */
+.llmo-connect-card {
+    max-width: 700px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+}
+
+.llmo-connect-card--open {
+    border-left: 4px solid #00d4ff;
+    background: #f8f9fa;
+}
+
+.llmo-connect-card--ok {
+    border-left: 4px solid #00a32a;
+    background: #f0f6f1;
+}
+
+.llmo-connect-card__title {
+    margin-top: 0;
+    font-size: 20px;
+    color: #1d2327;
+}
+
+.llmo-connect-card__icon {
+    font-size: 24px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.llmo-connect-card__icon--open {
+    color: #00d4ff;
+}
+
+.llmo-connect-card__icon--ok {
+    color: #00a32a;
+}
+
+.llmo-connect-card__text {
+    font-size: 14px;
+    color: #50575e;
+    line-height: 1.6;
+}
+
+.llmo-connect-card__steps {
+    font-size: 13px;
+    color: #50575e;
+    line-height: 1.8;
+    padding-left: 20px;
+}
+
+.llmo-connect-card__actions {
+    margin-top: 16px;
+    margin-bottom: 4px;
+}
+
+.llmo-connect-card__actions--ok {
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+.llmo-btn-connect {
+    font-size: 14px;
+    padding: 6px 20px;
+    height: auto;
+    background: #00d4ff;
+    border-color: #00b8d9;
+    color: #fff;
+}
+
+.llmo-btn-connect .dashicons {
+    margin-top: 3px;
+    margin-right: 4px;
+}
+
+.llmo-btn-register {
+    font-size: 14px;
+    padding: 6px 20px;
+    height: auto;
+    margin-left: 8px;
+}
+
+.llmo-btn-dashboard {
+    font-size: 13px;
+    padding: 4px 16px;
+    height: auto;
+}
+
+.llmo-btn-dashboard .dashicons {
+    margin-top: 3px;
+    margin-right: 4px;
+}
+
+.llmo-notice-icon-ok {
+    color: #00a32a;
+    vertical-align: middle;
+}
+
+.llmo-consent-label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.llmo-consent-desc {
+    margin-left: 24px;
+    margin-top: 8px;
+}
+
+.llmo-consent-notice {
+    margin-top: 15px;
+    margin-left: 24px;
+}
+
+.llmo-consent-notice .dashicons-warning {
+    color: #d63638;
+}
+
+.llmo-consent-notice .dashicons-yes-alt {
+    color: #00a32a;
+}
+
+/* Bulk optimizer */
+.llmo-bulk-stats-table {
+    width: auto;
+    min-width: 500px;
+}
+
+.llmo-bulk-stats-table__label {
+    width: 200px;
+}
+
+.llmo-bulk-row--ok {
+    background: #e8f5e9;
+}
+
+.llmo-bulk-row--pending {
+    background: #fff3e0;
+}
+
+.llmo-btn-selected {
+    margin-left: 10px;
+}
+
+#llmo-progress {
+    display: none;
+    margin-top: 20px;
+}
+
+.llmo-progress-track {
+    background: #f0f0f0;
+    height: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#llmo-progress-bar {
+    background: #0073aa;
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+#llmo-progress-text {
+    margin: 10px 0 0 0;
+}
+
+.llmo-bulk-mark {
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.llmo-bulk-mark--ok {
+    color: #4caf50;
+}
+
+.llmo-bulk-mark--pending {
+    color: #ff9800;
+}
+
+.llmo-bulk-badge {
+    color: #4caf50;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.llmo-bulk-status--ok {
+    color: #4caf50;
+}
+
+.llmo-bulk-status--pending {
+    color: #ff9800;
+}
+
+.llmo-bulk-score--high {
+    color: #4caf50;
+}
+
+.llmo-bulk-score--mid {
+    color: #ff9800;
+}
+
+.llmo-bulk-score--low {
+    color: #dc3232;
+}
+
+.llmo-bulk-score--empty {
+    color: #999;
+}
+
+.llmo-post-type-label {
+    display: block;
+    margin-bottom: 5px;
+}

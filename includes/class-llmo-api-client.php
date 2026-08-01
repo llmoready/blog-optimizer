@@ -77,47 +77,50 @@ class LLMO_API_Client {
     }
 
     /**
-     * Poll until article optimization is complete (manual Optimize Now / AJAX only).
+     * Single-shot status check for a queued optimization (no sleep; caller polls via AJAX/cron).
      *
-     * Job timeout is 300s — 24 × 10s = 240s stays under that with room for queue lag.
-     *
-     * @param string $url
-     * @param int    $max_attempts
-     * @param int    $delay_seconds
-     * @return array|WP_Error
+     * @param string $url Article URL.
+     * @return array|WP_Error|null Article when ready, WP_Error on failure, null when still pending.
      */
-    public function wait_for_optimization($url, $max_attempts = 24, $delay_seconds = 10) {
-        $last_analyzed = null;
-
-        for ($i = 0; $i < $max_attempts; $i++) {
-            sleep($delay_seconds);
-
-            $result = $this->get_article_by_url($url);
-            if (is_wp_error($result)) {
-                continue;
-            }
-
-            $article = isset($result['article']) ? $result['article'] : null;
-            $status = isset($article['status']) ? $article['status'] : '';
-
-            if ($status === 'failed') {
-                return new WP_Error('optimization_failed', __('Optimization failed on the server.', 'llmo-ready-blog-optimizer'));
-            }
-
-            if ($status === 'analyzed' && is_array($article)) {
-                $last_analyzed = $article;
-                // OG-Job läuft oft noch nach analyzed — warten bis URL da ist.
-                if (!empty($article['og_image'])) {
-                    return $article;
-                }
-            }
+    public function check_optimization_status($url) {
+        $result = $this->get_article_by_url($url);
+        if (is_wp_error($result)) {
+            return null;
         }
 
-        if ($last_analyzed) {
-            return $last_analyzed;
+        $article = isset($result['article']) ? $result['article'] : null;
+        $status = isset($article['status']) ? $article['status'] : '';
+
+        if ($status === 'failed') {
+            return new WP_Error('optimization_failed', __('Optimization failed on the server.', 'llmo-ready-blog-optimizer'));
         }
 
-        return new WP_Error('optimization_timeout', __('Optimization did not complete in time.', 'llmo-ready-blog-optimizer'));
+        if ($status === 'analyzed' && is_array($article)) {
+            return $article;
+        }
+
+        return null;
+    }
+
+    /**
+     * Sanitize remote API error text before showing it in the admin UI.
+     *
+     * @param mixed $message Raw remote message.
+     * @return string
+     */
+    private function sanitize_remote_message($message) {
+        if (!is_string($message) || $message === '') {
+            return __('API request failed', 'llmo-ready-blog-optimizer');
+        }
+
+        $message = wp_strip_all_tags($message);
+        $message = sanitize_text_field($message);
+
+        if (strlen($message) > 200) {
+            $message = substr($message, 0, 200);
+        }
+
+        return $message !== '' ? $message : __('API request failed', 'llmo-ready-blog-optimizer');
     }
     
     /**
@@ -157,11 +160,11 @@ class LLMO_API_Client {
         
         if ($response_code >= 400) {
             $error_data = json_decode($response_body, true);
-            $error_message = isset($error_data['message']) ? $error_data['message'] : esc_html__('API request failed', 'llmo-ready-blog-optimizer');
+            $raw_message = (is_array($error_data) && isset($error_data['message'])) ? $error_data['message'] : '';
+            $error_message = $this->sanitize_remote_message($raw_message);
             
             return new WP_Error('api_error', $error_message, array(
                 'status' => $response_code,
-                'response' => $error_data
             ));
         }
         

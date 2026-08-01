@@ -16,34 +16,48 @@ if (!defined('ABSPATH')) {
 class LLMO_Blog_Optimizer_Bulk {
     
     /**
+     * Posts per page on the bulk list.
+     */
+    const PER_PAGE = 50;
+
+    /**
      * Render bulk optimizer page
      */
     public function render() {
         $post_types = get_option('llmo_blog_optimizer_post_types', array('post'));
-        
-        // Get posts
-        $args = array(
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination.
+        $paged = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
+
+        $count_query = new WP_Query(array(
             'post_type' => $post_types,
             'post_status' => 'publish',
-            'posts_per_page' => -1,
+            'posts_per_page' => 1,
+            'fields' => 'ids',
+            'no_found_rows' => false,
+        ));
+        $total_posts = (int) $count_query->found_posts;
+
+        $optimized_posts = (int) (new WP_Query(array(
+            'post_type' => $post_types,
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+            'fields' => 'ids',
+            'meta_key' => '_llmo_optimized',
+            'meta_value' => '1',
+        )))->found_posts;
+
+        $pending_posts = max(0, $total_posts - $optimized_posts);
+
+        $list_query = new WP_Query(array(
+            'post_type' => $post_types,
+            'post_status' => 'publish',
+            'posts_per_page' => self::PER_PAGE,
+            'paged' => $paged,
             'orderby' => 'date',
             'order' => 'DESC',
-        );
-        
-        $posts = get_posts($args);
-        
-        // Calculate stats
-        $total_posts = count($posts);
-        $optimized_posts = 0;
-        $pending_posts = 0;
-        
-        foreach ($posts as $post) {
-            if (get_post_meta($post->ID, '_llmo_optimized', true)) {
-                $optimized_posts++;
-            } else {
-                $pending_posts++;
-            }
-        }
+        ));
+        $posts = $list_query->posts;
+        $total_pages = (int) $list_query->max_num_pages;
         
         ?>
         <div class="wrap">
@@ -55,9 +69,9 @@ class LLMO_Blog_Optimizer_Bulk {
             
             <div class="card">
                 <h2><?php esc_html_e('Statistics', 'llmo-ready-blog-optimizer'); ?></h2>
-                <table class="widefat" style="width: auto; min-width: 500px;">
+                <table class="widefat llmo-bulk-stats-table">
                     <tr>
-                        <td style="width: 200px;"><strong><?php esc_html_e('Total Posts:', 'llmo-ready-blog-optimizer'); ?></strong></td>
+                        <td class="llmo-bulk-stats-table__label"><strong><?php esc_html_e('Total Posts:', 'llmo-ready-blog-optimizer'); ?></strong></td>
                         <td>
                             <?php
                             /* translators: %s: Number of posts */
@@ -65,7 +79,7 @@ class LLMO_Blog_Optimizer_Bulk {
                             ?>
                         </td>
                     </tr>
-                    <tr style="background: #e8f5e9;">
+                    <tr class="llmo-bulk-row--ok">
                         <td><strong><?php esc_html_e('Optimized Posts:', 'llmo-ready-blog-optimizer'); ?></strong></td>
                         <td><strong>
                             <?php
@@ -74,7 +88,7 @@ class LLMO_Blog_Optimizer_Bulk {
                             ?>
                         </strong></td>
                     </tr>
-                    <tr style="background: #fff3e0;">
+                    <tr class="llmo-bulk-row--pending">
                         <td><strong><?php esc_html_e('Not Optimized:', 'llmo-ready-blog-optimizer'); ?></strong></td>
                         <td>
                             <?php
@@ -88,25 +102,43 @@ class LLMO_Blog_Optimizer_Bulk {
             
             <div class="card">
                 <h2><?php esc_html_e('Bulk Actions', 'llmo-ready-blog-optimizer'); ?></h2>
-                <p><?php esc_html_e('Select posts to optimize or optimize all pending posts at once.', 'llmo-ready-blog-optimizer'); ?></p>
+                <p><?php esc_html_e('Select posts on this page to optimize, or optimize all pending posts on this page.', 'llmo-ready-blog-optimizer'); ?></p>
                 
                 <button type="button" class="button button-primary button-large" id="llmo-optimize-all-pending">
-                    <?php esc_html_e('Optimize All Pending Posts', 'llmo-ready-blog-optimizer'); ?>
-                    (<?php echo esc_html($pending_posts); ?>)
+                    <?php esc_html_e('Optimize Pending on This Page', 'llmo-ready-blog-optimizer'); ?>
                 </button>
                 
-                <button type="button" class="button button-secondary button-large" id="llmo-optimize-selected" style="margin-left: 10px;">
+                <button type="button" class="button button-secondary button-large llmo-btn-selected" id="llmo-optimize-selected">
                     <?php esc_html_e('Optimize Selected', 'llmo-ready-blog-optimizer'); ?>
                 </button>
                 
-                <div id="llmo-progress" style="display: none; margin-top: 20px;">
+                <div id="llmo-progress">
                     <h3><?php esc_html_e('Optimization Progress', 'llmo-ready-blog-optimizer'); ?></h3>
-                    <div style="background: #f0f0f0; height: 30px; border-radius: 5px; overflow: hidden;">
-                        <div id="llmo-progress-bar" style="background: #0073aa; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    <div class="llmo-progress-track">
+                        <div id="llmo-progress-bar"></div>
                     </div>
-                    <p id="llmo-progress-text" style="margin: 10px 0 0 0;">0 / 0</p>
+                    <p id="llmo-progress-text">0 / 0</p>
                 </div>
             </div>
+
+            <?php if ($total_pages > 1) : ?>
+                <div class="llmo-bulk-pagination tablenav">
+                    <div class="tablenav-pages">
+                        <?php
+                        echo wp_kses_post(
+                            paginate_links(array(
+                                'base' => add_query_arg('paged', '%#%'),
+                                'format' => '',
+                                'current' => $paged,
+                                'total' => $total_pages,
+                                'prev_text' => '&laquo;',
+                                'next_text' => '&raquo;',
+                            ))
+                        );
+                        ?>
+                    </div>
+                </div>
+            <?php endif; ?>
             
             <form method="post" id="llmo-bulk-form">
                 <table class="wp-list-table widefat fixed striped">
@@ -126,16 +158,18 @@ class LLMO_Blog_Optimizer_Bulk {
                         <?php foreach ($posts as $post): 
                             $optimized = get_post_meta($post->ID, '_llmo_optimized', true);
                             $ai_score = get_post_meta($post->ID, '_llmo_ai_readiness_score', true);
+                            $score_int = (int) $ai_score;
+                            $score_mod = $score_int >= 80 ? 'high' : ($score_int >= 60 ? 'mid' : 'low');
                         ?>
                         <tr>
                             <th class="check-column">
-                                <input type="checkbox" name="post_ids[]" value="<?php echo esc_attr($post->ID); ?>" class="llmo-post-checkbox">
+                                <input type="checkbox" name="post_ids[]" value="<?php echo esc_attr($post->ID); ?>" class="llmo-post-checkbox" data-optimized="<?php echo $optimized ? '1' : '0'; ?>">
                             </th>
                             <td>
                                 <?php if ($optimized): ?>
-                                    <span style="color: #4caf50; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('LLMO-optimized', 'llmo-ready-blog-optimizer'); ?>">✓</span>
+                                    <span class="llmo-bulk-mark llmo-bulk-mark--ok" title="<?php esc_attr_e('LLMO-optimized', 'llmo-ready-blog-optimizer'); ?>">✓</span>
                                 <?php else: ?>
-                                    <span style="color: #ff9800; font-size: 16px; margin-right: 8px;" title="<?php esc_attr_e('Not optimized', 'llmo-ready-blog-optimizer'); ?>">○</span>
+                                    <span class="llmo-bulk-mark llmo-bulk-mark--pending" title="<?php esc_attr_e('Not optimized', 'llmo-ready-blog-optimizer'); ?>">○</span>
                                 <?php endif; ?>
                                 <strong>
                                     <a href="<?php echo esc_url(get_edit_post_link($post->ID)); ?>">
@@ -143,28 +177,28 @@ class LLMO_Blog_Optimizer_Bulk {
                                     </a>
                                 </strong>
                                 <?php if ($optimized): ?>
-                                    <span style="color: #4caf50; font-size: 11px; margin-left: 8px;">● <?php esc_html_e('AI-optimized', 'llmo-ready-blog-optimizer'); ?></span>
+                                    <span class="llmo-bulk-badge">● <?php esc_html_e('AI-optimized', 'llmo-ready-blog-optimizer'); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo esc_html(get_the_date('', $post->ID)); ?></td>
                             <td>
                                 <?php if ($optimized): ?>
-                                    <span style="color: #4caf50;">
+                                    <span class="llmo-bulk-status--ok">
                                         <?php esc_html_e('Optimized', 'llmo-ready-blog-optimizer'); ?>
                                     </span>
                                 <?php else: ?>
-                                    <span style="color: #ff9800;">
+                                    <span class="llmo-bulk-status--pending">
                                         <?php esc_html_e('Pending', 'llmo-ready-blog-optimizer'); ?>
                                     </span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if ($ai_score): ?>
-                                    <strong style="color: <?php echo $ai_score >= 80 ? '#4caf50' : ($ai_score >= 60 ? '#ff9800' : '#dc3232'); ?>">
+                                    <strong class="llmo-bulk-score--<?php echo esc_attr($score_mod); ?>">
                                         <?php echo esc_html($ai_score); ?>/100
                                     </strong>
                                 <?php else: ?>
-                                    <span style="color: #999;">-</span>
+                                    <span class="llmo-bulk-score--empty">-</span>
                                 <?php endif; ?>
                             </td>
                             <td>

@@ -4,7 +4,7 @@ Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.14
+Stable tag: 1.0.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -132,6 +132,10 @@ All optimization data is stored as post meta and will remain even if you deactiv
 
 Yes, your post content is sent to the LLMO Ready API for analysis. The API is GDPR compliant and does not store your content permanently.
 
+= Why does Connect return an API token in the URL? =
+
+Connecting opens LLMO Ready in the browser and redirects back to your WordPress admin with a one-time token in the query string (same pattern as OAuth return URLs). Only administrators can complete the callback. The redirect includes a one-time `llmo_state` value that must match a short-lived server-side token. After saving, the plugin immediately redirects again so the token is removed from the address bar. You can also paste an API key manually in Settings.
+
 == Screenshots ==
 
 1. Settings page with API configuration
@@ -141,6 +145,21 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 5. Generated Schema.org markup example
 
 == Changelog ==
+
+= 1.0.15 =
+* Fixed: FAQ CSS/JS load only when the FAQ shortcode or widget renders
+* Fixed: Optimize AJAX checks edit_post capability per post
+* Fixed: Connect callback requires one-time llmo_state (GET token flow documented)
+* Fixed: AI score colors use CSS classes (no unescaped inline color)
+* Fixed: Support forum URL uses plugin slug llmo-ready-blog-optimizer
+* Fixed: LICENSE contains the full GPLv2 text
+* Improved: Admin inline styles moved to admin.css
+* Improved: External links use rel="noopener noreferrer"
+* Improved: Organization type labels and breadcrumb "Home" are translatable
+* Improved: Bulk optimizer paginates (50 posts per page)
+* Improved: Admin assets on post screens only for enabled post types
+* Improved: Remote API error messages are sanitized before display
+* Improved: Removed blocking sleep(); Optimize Now queues and polls via AJAX
 
 = 1.0.14 =
 * Fixed: Enqueue admin JS via wp_enqueue_script instead of inline script tags
@@ -217,6 +236,9 @@ Yes, your post content is sent to the LLMO Ready API for analysis. The API is GD
 
 == Upgrade Notice ==
 
+= 1.0.15 =
+WordPress.org review hardening: capability checks, FAQ asset loading, connect state, no sleep(), full GPLv2, clean packaging.
+
 = 1.0.12 =
 WordPress.org compliance fixes: settings sanitization, consent clear, uninstall cleanup, and readme disclosure.
 
@@ -251,7 +273,7 @@ Initial release.
 
 For support, please visit:
 * Documentation: https://docs.libers.ai/wordpress-plugin
-* Support Forum: https://wordpress.org/support/plugin/llmo-blog-optimizer/
+* Support Forum: https://wordpress.org/support/plugin/llmo-ready-blog-optimizer/
 * Email: support@libers.ai
 
 == Privacy Policy ==

@@ -20,27 +20,36 @@ class LLMO_FAQ_Shortcode {
      */
     public static function init() {
         add_shortcode('llmo_faq', array(__CLASS__, 'render_faq'));
-        add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue_styles'));
+        add_action('wp_enqueue_scripts', array(__CLASS__, 'register_assets'));
     }
     
     /**
-     * Enqueue frontend styles
+     * Register frontend assets (enqueued only when shortcode/widget renders).
      */
-    public static function enqueue_styles() {
-        wp_enqueue_style(
+    public static function register_assets() {
+        wp_register_style(
             'llmo-faq-frontend',
             LLMO_BLOG_OPTIMIZER_PLUGIN_URL . 'assets/css/faq-frontend.css',
             array(),
             LLMO_BLOG_OPTIMIZER_VERSION
         );
         
-        wp_enqueue_script(
+        wp_register_script(
             'llmo-faq-frontend',
             LLMO_BLOG_OPTIMIZER_PLUGIN_URL . 'assets/js/faq-frontend.js',
             array('jquery'),
             LLMO_BLOG_OPTIMIZER_VERSION,
             true
         );
+    }
+
+    /**
+     * Enqueue FAQ assets when the shortcode or widget actually outputs.
+     */
+    public static function enqueue_assets() {
+        wp_enqueue_style('dashicons');
+        wp_enqueue_style('llmo-faq-frontend');
+        wp_enqueue_script('llmo-faq-frontend');
     }
     
     /**
@@ -60,6 +69,8 @@ class LLMO_FAQ_Shortcode {
         if (empty($faq_data) || !is_array($faq_data)) {
             return '';
         }
+
+        self::enqueue_assets();
         
         ob_start();
         ?>

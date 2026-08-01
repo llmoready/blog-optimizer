@@ -31,20 +31,30 @@ class LLMO_Blog_Optimizer_Admin {
         add_action('admin_init', array($this, 'handle_api_token_callback'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_ajax_llmo_optimize_post', array($this, 'ajax_optimize_post'));
+        add_action('wp_ajax_llmo_poll_optimization', array($this, 'ajax_poll_optimization'));
         add_action('wp_ajax_llmo_test_connection', array($this, 'ajax_test_connection'));
     }
     
     /**
-     * Handle API token callback from LLMO Ready
-     * After login/register, user is redirected back with ?api_token=xxx&connected=1
+     * Handle API token callback from LLMO Ready.
+     *
+     * After login/register, the user is redirected back with
+     * ?api_token=xxx&connected=1&llmo_state=yyy
+     *
+     * The token is delivered via GET because the connect flow is an external
+     * browser redirect (same pattern as OAuth return URLs). We harden it with:
+     * - manage_options capability
+     * - one-time llmo_state (user transient) embedded in return_url
+     * - sanitize_text_field on the token
+     * - immediate redirect that strips the token from the address bar
      */
     public function handle_api_token_callback() {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect callback from LLMO Ready, nonce not possible. Access is guarded by current_user_can('manage_options').
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect; protected by capability + one-time state.
         if (!isset($_GET['page']) || sanitize_text_field(wp_unslash($_GET['page'])) !== 'llmo-blog-optimizer') {
             return;
         }
         
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect callback, see above.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect; see above.
         if (!isset($_GET['api_token']) || !isset($_GET['connected'])) {
             return;
         }
@@ -52,8 +62,16 @@ class LLMO_Blog_Optimizer_Admin {
         if (!current_user_can('manage_options')) {
             return;
         }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect; see above.
+        $state = isset($_GET['llmo_state']) ? sanitize_text_field(wp_unslash($_GET['llmo_state'])) : '';
+        $expected = get_transient('llmo_connect_state_' . get_current_user_id());
+        if (empty($state) || empty($expected) || !hash_equals((string) $expected, $state)) {
+            return;
+        }
+        delete_transient('llmo_connect_state_' . get_current_user_id());
         
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect callback, see above.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- External redirect; see above.
         $api_token = sanitize_text_field(wp_unslash($_GET['api_token']));
         
         if (!empty($api_token)) {
@@ -62,6 +80,32 @@ class LLMO_Blog_Optimizer_Admin {
             // Enqueued via admin_enqueue_scripts (no raw <script> echo).
             $this->post_connect_redirect = admin_url('admin.php?page=llmo-blog-optimizer&llmo_connected=1');
         }
+    }
+
+    /**
+     * Build connect/register URLs with a one-time state in return_url.
+     *
+     * @return array{connect:string,register:string}
+     */
+    private function get_connect_urls() {
+        $state = wp_generate_password(32, false);
+        set_transient('llmo_connect_state_' . get_current_user_id(), $state, HOUR_IN_SECONDS);
+
+        $return_url = add_query_arg(
+            array(
+                'page' => 'llmo-blog-optimizer',
+                'llmo_state' => $state,
+            ),
+            admin_url('admin.php')
+        );
+
+        $site_url = rawurlencode(get_site_url());
+        $encoded_return = rawurlencode($return_url);
+
+        return array(
+            'connect' => 'https://app.libers.ai/login?site=' . $site_url . '&from=plugin&return_url=' . $encoded_return,
+            'register' => 'https://libers.ai/plugin/register?site=' . $site_url . '&return_url=' . $encoded_return,
+        );
     }
     
     /**
@@ -251,8 +295,19 @@ class LLMO_Blog_Optimizer_Admin {
      * Enqueue admin scripts
      */
     public function enqueue_scripts($hook) {
-        if (strpos($hook, 'llmo-') === false && $hook !== 'post.php' && $hook !== 'post-new.php') {
+        $is_llmo_page = (strpos($hook, 'llmo-') !== false);
+        $is_post_screen = ($hook === 'post.php' || $hook === 'post-new.php');
+
+        if (!$is_llmo_page && !$is_post_screen) {
             return;
+        }
+
+        if ($is_post_screen) {
+            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+            $allowed = get_option('llmo_blog_optimizer_post_types', array('post'));
+            if (!$screen || empty($screen->post_type) || !in_array($screen->post_type, (array) $allowed, true)) {
+                return;
+            }
         }
         
         wp_enqueue_style(
@@ -273,6 +328,8 @@ class LLMO_Blog_Optimizer_Admin {
         $localize = array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('llmo_admin_nonce'),
+            'pollInterval' => 10000,
+            'pollMaxAttempts' => 30,
             'strings' => array(
                 'optimizing' => __('Optimizing...', 'llmo-ready-blog-optimizer'),
                 'optimized' => __('Optimized!', 'llmo-ready-blog-optimizer'),
@@ -285,6 +342,7 @@ class LLMO_Blog_Optimizer_Admin {
                 'noPending' => __('No pending posts to optimize', 'llmo-ready-blog-optimizer'),
                 'selectPosts' => __('Please select posts to optimize', 'llmo-ready-blog-optimizer'),
                 'optimizationComplete' => __('Optimization complete!', 'llmo-ready-blog-optimizer'),
+                'optimizationTimeout' => __('Optimization is still running. Results will appear when ready.', 'llmo-ready-blog-optimizer'),
             ),
         );
 
@@ -300,10 +358,9 @@ class LLMO_Blog_Optimizer_Admin {
      */
     public function render_settings_page() {
         $api_key = get_option('llmo_blog_optimizer_api_key', '');
-        $site_url = rawurlencode(get_site_url());
-        $return_url = rawurlencode(admin_url('admin.php?page=llmo-blog-optimizer'));
-        $connect_url = 'https://app.libers.ai/login?site=' . $site_url . '&from=plugin&return_url=' . $return_url;
-        $register_url = 'https://libers.ai/plugin/register?site=' . $site_url . '&return_url=' . $return_url;
+        $urls = $this->get_connect_urls();
+        $connect_url = $urls['connect'];
+        $register_url = $urls['register'];
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
@@ -314,7 +371,7 @@ class LLMO_Blog_Optimizer_Admin {
             <?php if (isset($_GET['llmo_connected'])): ?>
             <div class="notice notice-success is-dismissible">
                 <p>
-                    <span class="dashicons dashicons-yes-alt" style="color: #00a32a; vertical-align: middle;"></span>
+                    <span class="dashicons dashicons-yes-alt llmo-notice-icon-ok"></span>
                     <strong><?php esc_html_e('Successfully connected with LLMO Ready!', 'llmo-ready-blog-optimizer'); ?></strong>
                     <?php esc_html_e('Your website is being analyzed. You can now start optimizing your blog posts.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
@@ -322,41 +379,41 @@ class LLMO_Blog_Optimizer_Admin {
             <?php endif; ?>
             
             <?php if (empty($api_key)): ?>
-            <div class="card" style="max-width: 700px; border-left: 4px solid #00d4ff; background: #f8f9fa; padding: 20px 24px; margin-bottom: 24px;">
-                <h2 style="margin-top: 0; font-size: 20px; color: #1d2327;">
-                    <span class="dashicons dashicons-admin-links" style="color: #00d4ff; font-size: 24px; vertical-align: middle; margin-right: 8px;"></span>
+            <div class="card llmo-connect-card llmo-connect-card--open">
+                <h2 class="llmo-connect-card__title">
+                    <span class="dashicons dashicons-admin-links llmo-connect-card__icon llmo-connect-card__icon--open"></span>
                     <?php esc_html_e('Connect with LLMO Ready', 'llmo-ready-blog-optimizer'); ?>
                 </h2>
-                <p style="font-size: 14px; color: #50575e; line-height: 1.6;">
+                <p class="llmo-connect-card__text">
                     <?php esc_html_e('To use the Blog Optimizer, connect your website with your LLMO Ready account. Your website will be automatically analyzed and you will receive an API token.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
-                <ol style="font-size: 13px; color: #50575e; line-height: 1.8; padding-left: 20px;">
+                <ol class="llmo-connect-card__steps">
                     <li><?php esc_html_e('Click the button below to open LLMO Ready', 'llmo-ready-blog-optimizer'); ?></li>
                     <li><?php esc_html_e('Register or log in to your account', 'llmo-ready-blog-optimizer'); ?></li>
                     <li><?php esc_html_e('Your API token will be set up automatically', 'llmo-ready-blog-optimizer'); ?></li>
                 </ol>
-                <p style="margin-top: 16px; margin-bottom: 4px;">
-                    <a href="<?php echo esc_url($connect_url); ?>" class="button button-primary" style="font-size: 14px; padding: 6px 20px; height: auto; background: #00d4ff; border-color: #00b8d9; color: #fff;">
-                        <span class="dashicons dashicons-admin-links" style="margin-top: 3px; margin-right: 4px;"></span>
+                <p class="llmo-connect-card__actions">
+                    <a href="<?php echo esc_url($connect_url); ?>" class="button button-primary llmo-btn-connect">
+                        <span class="dashicons dashicons-admin-links"></span>
                         <?php esc_html_e('Connect with LLMO Ready', 'llmo-ready-blog-optimizer'); ?>
                     </a>
-                    <a href="<?php echo esc_url($register_url); ?>" class="button button-secondary" style="font-size: 14px; padding: 6px 20px; height: auto; margin-left: 8px;">
+                    <a href="<?php echo esc_url($register_url); ?>" class="button button-secondary llmo-btn-register">
                         <?php esc_html_e('Create free account', 'llmo-ready-blog-optimizer'); ?>
                     </a>
                 </p>
             </div>
             <?php else: ?>
-            <div class="card" style="max-width: 700px; border-left: 4px solid #00a32a; background: #f0f6f1; padding: 20px 24px; margin-bottom: 24px;">
-                <h2 style="margin-top: 0; font-size: 20px; color: #1d2327;">
-                    <span class="dashicons dashicons-yes-alt" style="color: #00a32a; font-size: 24px; vertical-align: middle; margin-right: 8px;"></span>
+            <div class="card llmo-connect-card llmo-connect-card--ok">
+                <h2 class="llmo-connect-card__title">
+                    <span class="dashicons dashicons-yes-alt llmo-connect-card__icon llmo-connect-card__icon--ok"></span>
                     <?php esc_html_e('Connected with LLMO Ready', 'llmo-ready-blog-optimizer'); ?>
                 </h2>
-                <p style="font-size: 14px; color: #50575e; line-height: 1.6;">
+                <p class="llmo-connect-card__text">
                     <?php esc_html_e('Your website is connected. Blog posts will be automatically optimized with Schema.org markup for better AI visibility.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
-                <p style="margin-top: 12px; margin-bottom: 4px;">
-                    <a href="https://app.libers.ai/websites" target="_blank" class="button button-secondary" style="font-size: 13px; padding: 4px 16px; height: auto;">
-                        <span class="dashicons dashicons-external" style="margin-top: 3px; margin-right: 4px;"></span>
+                <p class="llmo-connect-card__actions--ok">
+                    <a href="https://app.libers.ai/websites" target="_blank" rel="noopener noreferrer" class="button button-secondary llmo-btn-dashboard">
+                        <span class="dashicons dashicons-external"></span>
                         <?php esc_html_e('Open LLMO Ready Dashboard', 'llmo-ready-blog-optimizer'); ?>
                     </a>
                 </p>
@@ -411,7 +468,7 @@ class LLMO_Blog_Optimizer_Admin {
             printf(
                 /* translators: %s: Link to LLMO Ready app dashboard */
                 esc_html__('Get your API key from %s', 'llmo-ready-blog-optimizer'),
-                '<a href="https://app.libers.ai/websites" target="_blank">app.libers.ai</a>'
+                '<a href="https://app.libers.ai/websites" target="_blank" rel="noopener noreferrer">app.libers.ai</a>'
             );
             ?>
         </p>
@@ -425,7 +482,7 @@ class LLMO_Blog_Optimizer_Admin {
         $consent = get_option('llmo_blog_optimizer_consent', '');
         $has_consent = ($consent === 'yes');
         ?>
-        <label style="display: block; margin-bottom: 10px;">
+        <label class="llmo-consent-label">
             <input type="hidden" name="llmo_blog_optimizer_consent" value="">
             <input type="checkbox" 
                    name="llmo_blog_optimizer_consent" 
@@ -434,33 +491,33 @@ class LLMO_Blog_Optimizer_Admin {
             <strong><?php esc_html_e('I consent to sending my post content to Libers GmbH for AI optimization and processing.', 'llmo-ready-blog-optimizer'); ?></strong>
         </label>
         
-        <p class="description" style="margin-left: 24px; margin-top: 8px;">
+        <p class="description llmo-consent-desc">
             <?php esc_html_e('By checking this box, you agree that your post content (title, content, excerpt) will be sent to Libers GmbH via secure HTTPS for AI optimization and analysis.', 'llmo-ready-blog-optimizer'); ?>
         </p>
         
-        <p class="description" style="margin-left: 24px; margin-top: 8px;">
+        <p class="description llmo-consent-desc">
             <?php
             printf(
                 /* translators: %1$s: Privacy Policy link, %2$s: Terms of Use link */
                 esc_html__('Please review our %1$s and %2$s before proceeding.', 'llmo-ready-blog-optimizer'),
-                '<a href="https://libers.ai/privacy" target="_blank">' . esc_html__('Privacy Policy', 'llmo-ready-blog-optimizer') . '</a>',
-                '<a href="https://libers.ai/terms" target="_blank">' . esc_html__('Terms of Use', 'llmo-ready-blog-optimizer') . '</a>'
+                '<a href="https://libers.ai/privacy" target="_blank" rel="noopener noreferrer">' . esc_html__('Privacy Policy', 'llmo-ready-blog-optimizer') . '</a>',
+                '<a href="https://libers.ai/terms" target="_blank" rel="noopener noreferrer">' . esc_html__('Terms of Use', 'llmo-ready-blog-optimizer') . '</a>'
             );
             ?>
         </p>
         
         <?php if (!$has_consent): ?>
-            <div class="notice notice-warning inline" style="margin-top: 15px; margin-left: 24px;">
+            <div class="notice notice-warning inline llmo-consent-notice">
                 <p>
-                    <span class="dashicons dashicons-warning" style="color: #d63638;"></span>
+                    <span class="dashicons dashicons-warning"></span>
                     <strong><?php esc_html_e('Consent required:', 'llmo-ready-blog-optimizer'); ?></strong>
                     <?php esc_html_e('You must check this box and save settings before optimizing posts. No data will be sent without your explicit consent.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
             </div>
         <?php else: ?>
-            <div class="notice notice-success inline" style="margin-top: 15px; margin-left: 24px;">
+            <div class="notice notice-success inline llmo-consent-notice">
                 <p>
-                    <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+                    <span class="dashicons dashicons-yes-alt"></span>
                     <strong><?php esc_html_e('Consent given.', 'llmo-ready-blog-optimizer'); ?></strong>
                     <?php esc_html_e('You can now optimize your posts. You may withdraw consent at any time by unchecking this box.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
@@ -511,7 +568,7 @@ class LLMO_Blog_Optimizer_Admin {
                 continue;
             }
             ?>
-            <label style="display: block; margin-bottom: 5px;">
+            <label class="llmo-post-type-label">
                 <input type="checkbox" 
                        name="llmo_blog_optimizer_post_types[]" 
                        value="<?php echo esc_attr($post_type->name); ?>" 
@@ -537,14 +594,19 @@ class LLMO_Blog_Optimizer_Admin {
         $value = get_option($field_id, '');
         
         if ($field_id === 'llmo_organization_type') {
+            $types = array(
+                'Organization' => __('Organization', 'llmo-ready-blog-optimizer'),
+                'LocalBusiness' => __('Local Business', 'llmo-ready-blog-optimizer'),
+                'Corporation' => __('Corporation', 'llmo-ready-blog-optimizer'),
+                'EducationalOrganization' => __('Educational Organization', 'llmo-ready-blog-optimizer'),
+                'GovernmentOrganization' => __('Government Organization', 'llmo-ready-blog-optimizer'),
+                'NGO' => __('NGO', 'llmo-ready-blog-optimizer'),
+            );
             ?>
             <select name="<?php echo esc_attr($field_id); ?>" class="regular-text">
-                <option value="Organization" <?php selected($value, 'Organization'); ?>>Organization</option>
-                <option value="LocalBusiness" <?php selected($value, 'LocalBusiness'); ?>>Local Business</option>
-                <option value="Corporation" <?php selected($value, 'Corporation'); ?>>Corporation</option>
-                <option value="EducationalOrganization" <?php selected($value, 'EducationalOrganization'); ?>>Educational Organization</option>
-                <option value="GovernmentOrganization" <?php selected($value, 'GovernmentOrganization'); ?>>Government Organization</option>
-                <option value="NGO" <?php selected($value, 'NGO'); ?>>NGO</option>
+                <?php foreach ($types as $type_value => $type_label) : ?>
+                    <option value="<?php echo esc_attr($type_value); ?>" <?php selected($value, $type_value); ?>><?php echo esc_html($type_label); ?></option>
+                <?php endforeach; ?>
             </select>
             <?php
         } else {
@@ -558,19 +620,19 @@ class LLMO_Blog_Optimizer_Admin {
     }
     
     /**
-     * AJAX: Optimize post
+     * AJAX: Optimize post (queues job; JS polls for completion).
      */
     public function ajax_optimize_post() {
         check_ajax_referer('llmo_admin_nonce', 'nonce');
-        
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error(array('message' => __('Permission denied', 'llmo-ready-blog-optimizer')));
-        }
         
         $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         
         if (!$post_id) {
             wp_send_json_error(array('message' => __('Invalid post ID', 'llmo-ready-blog-optimizer')));
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_send_json_error(array('message' => __('Permission denied', 'llmo-ready-blog-optimizer')));
         }
         
         $optimizer = LLMO_Blog_Optimizer::get_instance();
@@ -581,9 +643,35 @@ class LLMO_Blog_Optimizer_Admin {
         }
         
         wp_send_json_success(array(
-            'message' => __('Post optimized successfully', 'llmo-ready-blog-optimizer'),
-            'score' => get_post_meta($post_id, '_llmo_ai_readiness_score', true),
+            'message' => __('Optimization queued', 'llmo-ready-blog-optimizer'),
+            'status' => 'pending',
+            'post_id' => $post_id,
         ));
+    }
+
+    /**
+     * AJAX: Poll optimization status for a single post.
+     */
+    public function ajax_poll_optimization() {
+        check_ajax_referer('llmo_admin_nonce', 'nonce');
+
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        if (!$post_id) {
+            wp_send_json_error(array('message' => __('Invalid post ID', 'llmo-ready-blog-optimizer')));
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_send_json_error(array('message' => __('Permission denied', 'llmo-ready-blog-optimizer')));
+        }
+
+        $optimizer = LLMO_Blog_Optimizer::get_instance();
+        $result = $optimizer->poll_optimization($post_id);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error(array('message' => $result->get_error_message()));
+        }
+
+        wp_send_json_success($result);
     }
     
     /**

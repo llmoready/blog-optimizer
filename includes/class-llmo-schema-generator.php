@@ -99,7 +99,7 @@ class LLMO_Schema_Generator {
                 array(
                     '@type' => 'ListItem',
                     'position' => 1,
-                    'name' => 'Home',
+                    'name' => __('Home', 'llmo-ready-blog-optimizer'),
                     'item' => home_url(),
                 ),
                 array(

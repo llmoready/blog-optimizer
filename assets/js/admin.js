@@ -7,11 +7,80 @@
 
     $(document).ready(function() {
         var strings = (window.llmoAdmin && llmoAdmin.strings) ? llmoAdmin.strings : {};
+        var pollInterval = (llmoAdmin && llmoAdmin.pollInterval) ? llmoAdmin.pollInterval : 10000;
+        var pollMaxAttempts = (llmoAdmin && llmoAdmin.pollMaxAttempts) ? llmoAdmin.pollMaxAttempts : 30;
 
         // Redirect after external API connect callback.
         if (llmoAdmin && llmoAdmin.redirectUrl) {
             window.location.replace(llmoAdmin.redirectUrl);
             return;
+        }
+
+        function pollUntilDone(postId, attempt) {
+            attempt = attempt || 0;
+
+            var deferred = $.Deferred();
+
+            if (attempt >= pollMaxAttempts) {
+                deferred.resolve({ status: 'timeout' });
+                return deferred.promise();
+            }
+
+            $.ajax({
+                url: llmoAdmin.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'llmo_poll_optimization',
+                    nonce: llmoAdmin.nonce,
+                    post_id: postId
+                }
+            }).done(function(response) {
+                if (response && response.success && response.data && response.data.status === 'done') {
+                    deferred.resolve(response.data);
+                    return;
+                }
+
+                if (response && !response.success) {
+                    deferred.reject(response);
+                    return;
+                }
+
+                window.setTimeout(function() {
+                    pollUntilDone(postId, attempt + 1).done(deferred.resolve).fail(deferred.reject);
+                }, pollInterval);
+            }).fail(function() {
+                window.setTimeout(function() {
+                    pollUntilDone(postId, attempt + 1).done(deferred.resolve).fail(deferred.reject);
+                }, pollInterval);
+            });
+
+            return deferred.promise();
+        }
+
+        function queueAndPoll(postId) {
+            var deferred = $.Deferred();
+
+            $.ajax({
+                url: llmoAdmin.ajaxurl,
+                type: 'POST',
+                timeout: 120000,
+                data: {
+                    action: 'llmo_optimize_post',
+                    nonce: llmoAdmin.nonce,
+                    post_id: postId
+                }
+            }).done(function(response) {
+                if (!response || !response.success) {
+                    deferred.reject(response);
+                    return;
+                }
+
+                pollUntilDone(postId).done(deferred.resolve).fail(deferred.reject);
+            }).fail(function() {
+                deferred.reject();
+            });
+
+            return deferred.promise();
         }
 
         // Test API connection
@@ -65,32 +134,21 @@
             $button.prop('disabled', true).text(strings.optimizing || 'Optimizing...');
             $('.llmo-optimize-hint').show();
 
-            $.ajax({
-                url: llmoAdmin.ajaxurl,
-                type: 'POST',
-                timeout: 300000,
-                data: {
-                    action: 'llmo_optimize_post',
-                    nonce: llmoAdmin.nonce,
-                    post_id: postId
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $button.text(strings.optimized || 'Optimized!');
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        alert((response.data && response.data.message) || strings.error || 'Error');
-                        $button.prop('disabled', false).text(isReoptimize ? (strings.reoptimize || 'Re-optimize') : (strings.optimizeNow || 'Optimize Now'));
-                        $('.llmo-optimize-hint').hide();
-                    }
-                },
-                error: function() {
-                    alert(strings.error || 'Error');
-                    $button.prop('disabled', false).text(isReoptimize ? (strings.reoptimize || 'Re-optimize') : (strings.optimizeNow || 'Optimize Now'));
-                    $('.llmo-optimize-hint').hide();
+            queueAndPoll(postId).done(function(data) {
+                if (data && data.status === 'timeout') {
+                    alert(strings.optimizationTimeout || 'Still running…');
+                    location.reload();
+                    return;
                 }
+                $button.text(strings.optimized || 'Optimized!');
+                setTimeout(function() {
+                    location.reload();
+                }, 800);
+            }).fail(function(response) {
+                var message = (response && response.data && response.data.message) || strings.error || 'Error';
+                alert(message);
+                $button.prop('disabled', false).text(isReoptimize ? (strings.reoptimize || 'Re-optimize') : (strings.optimizeNow || 'Optimize Now'));
+                $('.llmo-optimize-hint').hide();
             });
         });
 
@@ -105,10 +163,9 @@
 
         $('#llmo-optimize-all-pending').on('click', function() {
             var pendingPosts = [];
-            $('tbody tr').each(function() {
-                var $row = $(this);
-                if ($row.find('td:nth-child(4)').text().indexOf('Pending') !== -1) {
-                    pendingPosts.push($row.find('.llmo-post-checkbox').val());
+            $('.llmo-post-checkbox').each(function() {
+                if ($(this).data('optimized') !== 1 && $(this).data('optimized') !== '1') {
+                    pendingPosts.push($(this).val());
                 }
             });
 
@@ -154,25 +211,10 @@
 
                 var postId = postIds[current];
 
-                $.ajax({
-                    url: llmoAdmin.ajaxurl,
-                    type: 'POST',
-                    timeout: 300000,
-                    data: {
-                        action: 'llmo_optimize_post',
-                        nonce: llmoAdmin.nonce,
-                        post_id: postId
-                    },
-                    success: function() {
-                        current++;
-                        updateProgress(current, total);
-                        optimizeNext();
-                    },
-                    error: function() {
-                        current++;
-                        updateProgress(current, total);
-                        optimizeNext();
-                    }
+                queueAndPoll(postId).always(function() {
+                    current++;
+                    updateProgress(current, total);
+                    optimizeNext();
                 });
             }
 

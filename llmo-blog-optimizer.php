@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LLMO Ready - Blog Optimizer
  * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
- * Version: 1.0.14
+ * Version: 1.0.15
  * Author: LLMO Ready by Libers GmbH
  * Author URI: https://libers.ai
  * Plugin URI: https://wordpress.org/plugins/llmo-ready-blog-optimizer/
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.14');
+define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.15');
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -233,7 +233,7 @@ class LLMO_Blog_Optimizer {
         if (get_post_meta($post_id, '_llmo_optimized', true)) {
             return;
         }
-        $this->queue_optimization($post_id, false);
+        $this->queue_optimization($post_id);
     }
 
     public function poll_pending_optimizations() {
@@ -274,11 +274,23 @@ class LLMO_Blog_Optimizer {
         }
     }
     
+    /**
+     * Queue optimization (fire-and-forget). Completion is applied via AJAX poll or cron.
+     *
+     * @param int $post_id Post ID.
+     * @return true|WP_Error
+     */
     public function optimize_post($post_id) {
-        return $this->queue_optimization($post_id, true);
+        return $this->queue_optimization($post_id);
     }
 
-    public function queue_optimization($post_id, $wait = true) {
+    /**
+     * Queue an optimization job without blocking PHP (no sleep()).
+     *
+     * @param int $post_id Post ID.
+     * @return true|WP_Error
+     */
+    public function queue_optimization($post_id) {
         $api_key = get_option('llmo_blog_optimizer_api_key');
         if (empty($api_key)) {
             return new WP_Error('no_api_key', __('API key not configured', 'llmo-ready-blog-optimizer'));
@@ -309,20 +321,52 @@ class LLMO_Blog_Optimizer {
             return $response;
         }
 
-        if (!$wait) {
-            $this->add_pending_post($post_id);
-            return true;
+        $this->add_pending_post($post_id);
+        return true;
+    }
+
+    /**
+     * One-shot poll: apply meta when the remote job is ready.
+     *
+     * @param int $post_id Post ID.
+     * @return array|WP_Error Status payload or error.
+     */
+    public function poll_optimization($post_id) {
+        $post_id = (int) $post_id;
+        $post = get_post($post_id);
+        if (!$post) {
+            return new WP_Error('invalid_post', __('Invalid post ID', 'llmo-ready-blog-optimizer'));
         }
 
-        // Wait for async optimization; avoid set_time_limit() (discouraged by Plugin Check).
-        $article = $api_client->wait_for_optimization(get_permalink($post_id));
+        if (get_post_meta($post_id, '_llmo_optimized', true)) {
+            return array(
+                'status' => 'done',
+                'score' => get_post_meta($post_id, '_llmo_ai_readiness_score', true),
+            );
+        }
+
+        $api_key = get_option('llmo_blog_optimizer_api_key');
+        if (empty($api_key)) {
+            return new WP_Error('no_api_key', __('API key not configured', 'llmo-ready-blog-optimizer'));
+        }
+
+        $api_client = $this->get_api_client();
+        $article = $api_client->check_optimization_status(get_permalink($post_id));
         if (is_wp_error($article)) {
-            $this->add_pending_post($post_id);
+            $this->remove_pending_post($post_id);
+            update_post_meta($post_id, '_llmo_optimize_error', 'failed');
             return $article;
         }
 
-        $this->apply_article_meta($post_id, $article);
-        return true;
+        if (is_array($article)) {
+            $this->apply_article_meta($post_id, $article);
+            return array(
+                'status' => 'done',
+                'score' => get_post_meta($post_id, '_llmo_ai_readiness_score', true),
+            );
+        }
+
+        return array('status' => 'pending');
     }
 
     private function seo_plugin_handles_open_graph() {
@@ -437,12 +481,12 @@ class LLMO_Blog_Optimizer {
         ?>
         <div class="llmo-meta-box">
             <?php if (!$can_optimize): ?>
-                <div style="background: #f0f0f1; border-left: 4px solid #d63638; padding: 12px; margin-bottom: 15px;">
-                    <p style="margin: 0 0 8px 0; font-weight: 600;">
-                        <span class="dashicons dashicons-warning" style="color: #d63638; vertical-align: middle;"></span>
+                <div class="llmo-setup-notice">
+                    <p class="llmo-setup-notice__title">
+                        <span class="dashicons dashicons-warning llmo-setup-notice__icon"></span>
                         <?php esc_html_e('Setup Required', 'llmo-ready-blog-optimizer'); ?>
                     </p>
-                    <ul style="margin: 0; padding-left: 20px; font-size: 12px;">
+                    <ul class="llmo-setup-notice__list">
                         <?php if (!$has_api_key): ?>
                             <li><?php esc_html_e('Enter your API key in Settings', 'llmo-ready-blog-optimizer'); ?></li>
                         <?php endif; ?>
@@ -450,7 +494,7 @@ class LLMO_Blog_Optimizer {
                             <li><?php esc_html_e('Give consent to data processing', 'llmo-ready-blog-optimizer'); ?></li>
                         <?php endif; ?>
                     </ul>
-                    <p style="margin: 10px 0 0 0;">
+                    <p class="llmo-setup-notice__actions">
                         <a href="<?php echo esc_url(admin_url('admin.php?page=llmo-blog-optimizer')); ?>" class="button button-small">
                             <?php esc_html_e('Go to Settings', 'llmo-ready-blog-optimizer'); ?>
                         </a>
@@ -460,7 +504,7 @@ class LLMO_Blog_Optimizer {
 
             <?php if ($pending && !$optimized): ?>
                 <p>
-                    <span class="dashicons dashicons-update" style="color: #dba617;"></span>
+                    <span class="dashicons dashicons-update llmo-status-pending"></span>
                     <strong><?php esc_html_e('Optimization pending…', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <p class="description"><?php esc_html_e('Results will be applied automatically within a few minutes.', 'llmo-ready-blog-optimizer'); ?></p>
@@ -468,7 +512,7 @@ class LLMO_Blog_Optimizer {
             
             <?php if ($optimized): ?>
                 <p>
-                    <span style="color: #00a32a; font-size: 16px;"><span class="dashicons dashicons-yes-alt"></span></span>
+                    <span class="llmo-status-ok"><span class="dashicons dashicons-yes-alt"></span></span>
                     <strong><?php esc_html_e('Optimized', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <?php if ($optimized_at): ?>
@@ -480,33 +524,37 @@ class LLMO_Blog_Optimizer {
                     </p>
                 <?php endif; ?>
                 <?php if ($ai_score): ?>
+                    <?php
+                    $score_int = (int) $ai_score;
+                    $score_mod = $score_int >= 80 ? 'high' : ($score_int >= 60 ? 'mid' : 'low');
+                    ?>
                     <p>
                         <strong><?php esc_html_e('AI Readiness Score:', 'llmo-ready-blog-optimizer'); ?></strong><br>
-                        <span style="font-size: 24px; font-weight: bold; color: <?php echo $ai_score >= 80 ? '#00a32a' : ($ai_score >= 60 ? '#ff9800' : '#d63638'); ?>">
+                        <span class="llmo-score llmo-score--<?php echo esc_attr($score_mod); ?>">
                             <?php echo esc_html($ai_score); ?>/100
                         </span>
                     </p>
                 <?php endif; ?>
-                <p style="margin-top: 15px;">
+                <p class="llmo-meta-actions">
                     <button type="button" class="button button-secondary llmo-reoptimize" data-post-id="<?php echo esc_attr($post->ID); ?>" <?php disabled(!$can_optimize); ?>>
                         <?php esc_html_e('Re-optimize', 'llmo-ready-blog-optimizer'); ?>
                     </button>
                 </p>
             <?php else: ?>
                 <p>
-                    <span style="color: #d63638; font-size: 16px;"><span class="dashicons dashicons-marker"></span></span>
+                    <span class="llmo-status-missing"><span class="dashicons dashicons-marker"></span></span>
                     <strong><?php esc_html_e('Not optimized yet', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
-                <p style="margin-top: 15px;">
+                <p class="llmo-meta-actions">
                     <button type="button" class="button button-primary llmo-optimize" data-post-id="<?php echo esc_attr($post->ID); ?>" <?php disabled(!$can_optimize); ?>>
                         <?php esc_html_e('Optimize Now', 'llmo-ready-blog-optimizer'); ?>
                     </button>
                 </p>
-                <p class="description llmo-optimize-hint" style="display:none; margin-top:8px;">
-                    <?php esc_html_e('Please wait — this can take up to a few minutes…', 'llmo-ready-blog-optimizer'); ?>
+                <p class="description llmo-optimize-hint">
+                    <?php esc_html_e('Please wait. This can take up to a few minutes…', 'llmo-ready-blog-optimizer'); ?>
                 </p>
                 <?php if (!$can_optimize): ?>
-                    <p class="description" style="color: #d63638; margin-top: 8px;">
+                    <p class="description llmo-setup-required">
                         <?php esc_html_e('Complete setup in Settings to enable optimization.', 'llmo-ready-blog-optimizer'); ?>
                     </p>
                 <?php endif; ?>
