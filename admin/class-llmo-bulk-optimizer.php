@@ -37,6 +37,8 @@ class LLMO_Blog_Optimizer_Bulk {
         ));
         $total_posts = (int) $count_query->found_posts;
 
+        // Admin-only stats (infrequent page load). SlowDBQuery is expected for this count.
+        // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value
         $optimized_posts = (int) (new WP_Query(array(
             'post_type' => $post_types,
             'post_status' => 'publish',
@@ -45,6 +47,7 @@ class LLMO_Blog_Optimizer_Bulk {
             'meta_key' => '_llmo_optimized',
             'meta_value' => '1',
         )))->found_posts;
+        // phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 
         $pending_posts = max(0, $total_posts - $optimized_posts);
 

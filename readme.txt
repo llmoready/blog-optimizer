@@ -4,7 +4,7 @@ Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.15
+Stable tag: 1.0.16
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -146,6 +146,9 @@ Connecting opens LLMO Ready in the browser and redirects back to your WordPress 
 
 == Changelog ==
 
+= 1.0.16 =
+* Fixed: Bulk Optimizer stats SlowDBQuery warnings silenced with scoped phpcs disable (admin-only count)
+
 = 1.0.15 =
 * Fixed: FAQ CSS/JS load only when the FAQ shortcode or widget renders
 * Fixed: Optimize AJAX checks edit_post capability per post
@@ -235,6 +238,9 @@ Connecting opens LLMO Ready in the browser and redirects back to your WordPress 
 * Initial release of LLMO Ready - Blog Optimizer
 
 == Upgrade Notice ==
+
+= 1.0.16 =
+Plugin Check: bulk stats without SlowDBQuery meta_key/meta_value warnings.
 
 = 1.0.15 =
 WordPress.org review hardening: capability checks, FAQ asset loading, connect state, no sleep(), full GPLv2, clean packaging.
