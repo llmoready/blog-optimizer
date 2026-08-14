@@ -217,6 +217,7 @@ class LLMO_Blog_Optimizer {
         update_post_meta($post_id, '_llmo_og_description', isset($article['og_description']) ? $article['og_description'] : '');
         update_post_meta($post_id, '_llmo_og_image', isset($article['og_image']) ? $article['og_image'] : '');
         $this->remove_pending_post($post_id);
+        delete_post_meta($post_id, '_llmo_optimize_error');
     }
     
     public function auto_optimize_post($post_id, $post) {
@@ -233,7 +234,16 @@ class LLMO_Blog_Optimizer {
         if (get_post_meta($post_id, '_llmo_optimized', true)) {
             return;
         }
-        $this->queue_optimization($post_id);
+        $result = $this->queue_optimization($post_id);
+        if (is_wp_error($result)) {
+            $error_data = $result->get_error_data();
+            $status = (is_array($error_data) && isset($error_data['status'])) ? (int) $error_data['status'] : 0;
+            update_post_meta(
+                $post_id,
+                '_llmo_optimize_error',
+                $status === 402 ? 'insufficient_tokens' : 'failed'
+            );
+        }
     }
 
     public function poll_pending_optimizations() {
@@ -322,6 +332,7 @@ class LLMO_Blog_Optimizer {
         }
 
         $this->add_pending_post($post_id);
+        delete_post_meta($post_id, '_llmo_optimize_error');
         return true;
     }
 
@@ -478,6 +489,7 @@ class LLMO_Blog_Optimizer {
         $pending = get_post_meta($post->ID, '_llmo_pending', true);
         $optimized_at = get_post_meta($post->ID, '_llmo_optimized_at', true);
         $ai_score = get_post_meta($post->ID, '_llmo_ai_readiness_score', true);
+        $optimize_error = get_post_meta($post->ID, '_llmo_optimize_error', true);
         ?>
         <div class="llmo-meta-box">
             <?php if (!$can_optimize): ?>
@@ -508,6 +520,20 @@ class LLMO_Blog_Optimizer {
                     <strong><?php esc_html_e('Optimization pending…', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <p class="description"><?php esc_html_e('Results will be applied automatically within a few minutes.', 'llmo-ready-blog-optimizer'); ?></p>
+            <?php elseif ($optimize_error && !$optimized): ?>
+                <p>
+                    <span class="dashicons dashicons-warning" style="color:#d63638;"></span>
+                    <strong><?php esc_html_e('Optimization failed', 'llmo-ready-blog-optimizer'); ?></strong>
+                </p>
+                <p class="description">
+                    <?php
+                    if ($optimize_error === 'insufficient_tokens') {
+                        esc_html_e('Not enough tokens. Top up in your LLMO Ready account, then try Optimize Now.', 'llmo-ready-blog-optimizer');
+                    } else {
+                        esc_html_e('The last automatic optimization could not be queued. Try Optimize Now or check your connection.', 'llmo-ready-blog-optimizer');
+                    }
+                    ?>
+                </p>
             <?php endif; ?>
             
             <?php if ($optimized): ?>
