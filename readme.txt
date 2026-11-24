@@ -2,9 +2,9 @@
 Contributors: llmoready
 Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.16
+Stable tag: 1.0.24
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,30 +32,31 @@ LLMO Blog Optimizer automatically enhances your blog posts for better visibility
 = How It Works =
 
 1. Install and activate the plugin
-2. Get your free API key from [libers.ai](https://libers.ai)
-3. Enter your API key in Settings
-4. Your posts will be automatically optimized when published
-5. Or use the Bulk Optimizer to optimize existing posts
+2. Connect your Libers Suite account at [libers.ai](https://libers.ai)
+3. Confirm the settings and start optimizing posts
+4. New posts are optimized when you publish them
+5. Or use the Bulk Optimizer for existing posts
 
 = Requirements =
 
 * WordPress 5.8 or higher
 * PHP 7.4 or higher
-* LLMO Ready account (free tier available)
+* Libers Suite account with website tokens
 
 = Privacy & Data =
 
 This plugin sends your post content to the LLMO Ready API for analysis and optimization. By using this plugin, you consent to this data processing.
 
 **What data is sent:**
-- Post title, content, and excerpt
-- Post author name
-- Publication date
+- Post title
+- Post content
+- Excerpt
 - Post URL
-- Featured image URL (if set)
+- Publication date
+- Author name
+- Featured image URL (if a featured image is set)
 
 **What we do NOT collect:**
-- Personal user information
 - Email addresses
 - IP addresses
 - Visitor data
@@ -68,11 +69,13 @@ For complete details, please review:
 
 This plugin relies on the Libers Suite API for AI optimization functionality. The following data is sent to our servers:
 
-- Post title, content, and excerpt
-- Post author name (public)
-- Publication date
+- Post title
+- Post content
+- Excerpt
 - Post URL
-- Featured image URL (if set)
+- Publication date
+- Author name
+- Featured image URL (if a featured image is set)
 
 **User Consent Required:** You must explicitly consent to data processing in plugin settings before any content is transmitted. No data is sent without your explicit consent.
 
@@ -110,7 +113,7 @@ This plugin relies on the Libers Suite API for AI optimization functionality. Th
 
 = Do I need an API key? =
 
-Yes, you need a free API key from [libers.ai](https://libers.ai). The free tier includes optimization for up to 100 posts per month.
+Yes. Connect your Libers Suite account at [libers.ai](https://libers.ai). Each optimization uses website tokens from your plan. One post costs 0.25 tokens.
 
 = Which post types are supported? =
 
@@ -138,13 +141,43 @@ Connecting opens LLMO Ready in the browser and redirects back to your WordPress 
 
 == Screenshots ==
 
-1. Settings page with API configuration
-2. Bulk Optimizer dashboard
-3. Post editor meta box showing optimization status
-4. AI Readiness Score display
-5. Generated Schema.org markup example
+1. Settings page with API configuration and connect buttons
+2. Post editor meta box with Optimize Now
+3. AI Readiness Score after optimization
+4. Connected with Libers Suite
+5. Account registration with a 7-day trial for the WordPress plugin
 
 == Changelog ==
+
+= 1.0.24 =
+* Bulk optimization shows the current post, a progress bar, and a notice on the page.
+* The posts page, WooCommerce system pages, and pages without their own text stay out of the list and the counts.
+* The score column reads readability for AI before optimization.
+* WordPress loads the translations. The plugin no longer calls load_plugin_textdomain.
+
+= 1.0.23 =
+* The bulk list shows why a page stayed open. A missing balance stops the run. A page without text is skipped.
+
+= 1.0.22 =
+* Added: German translation (de_DE, de_CH, de_AT).
+
+= 1.0.21 =
+* Readme now describes token billing for optimizations. One post costs 0.25 website tokens from your Libers Suite plan.
+
+= 1.0.20 =
+* The FAQ is shown on the single post and the single page. The blog index keeps the posts as they are.
+
+= 1.0.19 =
+* FAQ questions are shown on the post or page. The position is before or after the text, and the block can be turned off.
+* The plugin settings and an admin notice explain why the FAQ is public: search engines only accept FAQ markup for questions visitors can read.
+* FAQPage markup lists only those visible questions.
+* Article details are added to the existing Rank Math or Yoast markup. Sites without those plugins still get their own article markup.
+
+= 1.0.18 =
+* Fixed: Declare "Tested up to" only in readme.txt, not in the plugin headers
+
+= 1.0.17 =
+* Fixed: Auto-publish optimization errors (including insufficient tokens) are now stored and shown as a warning in the post editor instead of failing silently
 
 = 1.0.16 =
 * Fixed: Bulk Optimizer stats SlowDBQuery warnings silenced with scoped phpcs disable (admin-only count)
@@ -203,7 +236,7 @@ Connecting opens LLMO Ready in the browser and redirects back to your WordPress 
 * Fixed: Auto-analysis for existing users logging in via plugin Connect button
 
 = 1.0.6 =
-* New: Free registration page for WordPress plugin users (no Stripe checkout)
+* New: Registration page for WordPress plugin users with a 7-day trial (no Stripe checkout)
 * New: Onboarding flow with direct link from plugin settings to LLMO Ready registration
 * New: First name and last name fields in plugin registration
 * New: WordPress logo pattern background on registration page
@@ -255,7 +288,7 @@ Automatic API token setup -- connect your account with one click.
 Fix: auto-analysis for existing users, clean distribution package.
 
 = 1.0.6 =
-New streamlined registration flow for plugin users. Create your free account directly from the plugin.
+New streamlined registration flow for plugin users. Create your account with a 7-day trial directly from the plugin.
 
 = 1.0.5 =
 Fixed API key link to point to working websites page.
@@ -293,25 +326,25 @@ You must explicitly consent to data processing in the plugin settings before any
 * Post content is sent via secure HTTPS connection
 * Content is analyzed by AI and optimization data is returned
 * We do not permanently store your post content
-* We do not collect personal user data
 * We do not track visitors to your site
 
 **GDPR Compliance:**
 This plugin is GDPR compliant. Users must opt-in via checkbox in settings.
 
 **What is sent:**
-* Post title, content, excerpt
-* Post author name (public information)
-* Publication date
+* Post title
+* Post content
+* Excerpt
 * Post URL
-* Featured image URL (if set)
+* Publication date
+* Author name
+* Featured image URL (if a featured image is set)
 
 **What is NOT sent:**
 * User email addresses
 * User passwords
 * IP addresses
 * Visitor tracking data
-* Any personal user information
 
 For complete details:
 * [Privacy Policy](https://libers.ai/privacy)

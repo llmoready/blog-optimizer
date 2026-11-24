@@ -2,12 +2,11 @@
 /**
  * Plugin Name: LLMO Ready - Blog Optimizer
  * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
- * Version: 1.0.16
+ * Version: 1.0.24
  * Author: LLMO Ready by Libers GmbH
  * Author URI: https://libers.ai
  * Plugin URI: https://wordpress.org/plugins/llmo-ready-blog-optimizer/
  * Requires at least: 5.8
- * Tested up to: 7.0
  * Requires PHP: 7.4
  * Text Domain: llmo-ready-blog-optimizer
  * Domain Path: /languages
@@ -21,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.16');
+define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.24');
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -34,6 +33,21 @@ class LLMO_Blog_Optimizer {
     const OPTION_PENDING_IDS = 'llmo_blog_optimizer_pending_ids';
 
     private static $instance = null;
+
+    /**
+     * Yoast or Rank Math already output the article or page node.
+     */
+    private $article_merged = false;
+
+    /**
+     * An FAQPage node was added to the SEO plugin graph.
+     */
+    private $faqpage_merged = false;
+
+    /**
+     * Visible FAQ HTML was printed by the automatic block.
+     */
+    private $faq_inserted = false;
     private $api_endpoint = 'https://api.libers.ai/api';
     
     public static function get_instance() {
@@ -69,8 +83,12 @@ class LLMO_Blog_Optimizer {
         add_action('publish_post', array($this, 'auto_optimize_post'), 10, 2);
         add_action('add_meta_boxes', array($this, 'add_meta_box'));
         add_action('save_post', array($this, 'save_post_meta'));
-        add_action('wp_head', array($this, 'output_schema_markup'), 10);
+        add_action('wp_head', array($this, 'output_schema_markup'), 99);
         add_action('wp_head', array($this, 'output_open_graph_tags'), 20);
+        add_filter('the_content', array($this, 'insert_faq'), 12);
+        add_action('wp_footer', array($this, 'render_faq_fallback'), 5);
+        add_filter('rank_math/json_ld', array($this, 'merge_rank_math_graph'), 100, 2);
+        add_filter('wpseo_schema_graph', array($this, 'merge_yoast_graph'), 11, 2);
 
         add_filter('cron_schedules', array($this, 'add_cron_schedules'));
         add_action('llmo_blog_optimizer_poll_pending', array($this, 'poll_pending_optimizations'));
@@ -492,6 +510,7 @@ class LLMO_Blog_Optimizer {
         $optimize_error = get_post_meta($post->ID, '_llmo_optimize_error', true);
         ?>
         <div class="llmo-meta-box">
+            <div class="llmo-meta-live" hidden></div>
             <?php if (!$can_optimize): ?>
                 <div class="llmo-setup-notice">
                     <p class="llmo-setup-notice__title">
@@ -515,12 +534,15 @@ class LLMO_Blog_Optimizer {
             <?php endif; ?>
 
             <?php if ($pending && !$optimized): ?>
+                <div class="llmo-meta-pending">
                 <p>
                     <span class="dashicons dashicons-update llmo-status-pending"></span>
                     <strong><?php esc_html_e('Optimization pending…', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <p class="description"><?php esc_html_e('Results will be applied automatically within a few minutes.', 'llmo-ready-blog-optimizer'); ?></p>
+                </div>
             <?php elseif ($optimize_error && !$optimized): ?>
+                <div class="llmo-meta-pending">
                 <p>
                     <span class="dashicons dashicons-warning" style="color:#d63638;"></span>
                     <strong><?php esc_html_e('Optimization failed', 'llmo-ready-blog-optimizer'); ?></strong>
@@ -534,12 +556,13 @@ class LLMO_Blog_Optimizer {
                     }
                     ?>
                 </p>
+                </div>
             <?php endif; ?>
             
             <?php if ($optimized): ?>
                 <p>
                     <span class="llmo-status-ok"><span class="dashicons dashicons-yes-alt"></span></span>
-                    <strong><?php esc_html_e('Optimized', 'llmo-ready-blog-optimizer'); ?></strong>
+                    <strong class="llmo-meta-state"><?php esc_html_e('Optimized', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <?php if ($optimized_at): ?>
                     <p class="description">
@@ -549,14 +572,11 @@ class LLMO_Blog_Optimizer {
                         ?>
                     </p>
                 <?php endif; ?>
-                <?php if ($ai_score): ?>
-                    <?php
-                    $score_int = (int) $ai_score;
-                    $score_mod = $score_int >= 80 ? 'high' : ($score_int >= 60 ? 'mid' : 'low');
-                    ?>
-                    <p>
-                        <strong><?php esc_html_e('AI Readiness Score:', 'llmo-ready-blog-optimizer'); ?></strong><br>
-                        <span class="llmo-score llmo-score--<?php echo esc_attr($score_mod); ?>">
+                <?php if ($ai_score !== '' && $ai_score !== false && $ai_score !== null): ?>
+                    <p class="llmo-meta-score">
+                        <strong><?php esc_html_e('Readability for AI (before optimization)', 'llmo-ready-blog-optimizer'); ?></strong>
+                        <span class="dashicons dashicons-editor-help llmo-score-help" title="<?php echo esc_attr__('How well AI systems understand your original text. The questions and answers from the optimization are not included in this number.', 'llmo-ready-blog-optimizer'); ?>"></span><br>
+                        <span class="llmo-score">
                             <?php echo esc_html($ai_score); ?>/100
                         </span>
                     </p>
@@ -569,7 +589,7 @@ class LLMO_Blog_Optimizer {
             <?php else: ?>
                 <p>
                     <span class="llmo-status-missing"><span class="dashicons dashicons-marker"></span></span>
-                    <strong><?php esc_html_e('Not optimized yet', 'llmo-ready-blog-optimizer'); ?></strong>
+                    <strong class="llmo-meta-state"><?php esc_html_e('Not optimized yet', 'llmo-ready-blog-optimizer'); ?></strong>
                 </p>
                 <p class="llmo-meta-actions">
                     <button type="button" class="button button-primary llmo-optimize" data-post-id="<?php echo esc_attr($post->ID); ?>" <?php disabled(!$can_optimize); ?>>
@@ -616,59 +636,349 @@ class LLMO_Blog_Optimizer {
     }
 
     public function output_schema_markup() {
-        if (!is_singular() && !is_front_page() && !is_home()) {
-            return;
-        }
-        
-        $post_id = get_the_ID();
-        $schema = get_post_meta($post_id, '_llmo_schema_org', true);
-        
-        if (empty($schema)) {
-            $schema = LLMO_Schema_Generator::generate_schema($post_id);
-        }
-        
-        if (empty($schema)) {
+        if (!$this->is_llmo_content_view()) {
             return;
         }
 
-        $schema_json = $this->encode_json_ld($schema);
-        if (false !== $schema_json) {
-            echo '<script type="application/ld+json">' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
-            echo $schema_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
-            echo "\n" . '</script>' . "\n";
+        $post_id = get_the_ID();
+        if (!$post_id) {
+            return;
         }
-        
-        $faq_data = get_post_meta($post_id, '_llmo_faq', true);
-        if (!empty($faq_data) && is_array($faq_data)) {
-            $faq_schema = array(
-                '@context' => 'https://schema.org',
-                '@type' => 'FAQPage',
-                'mainEntity' => array()
+
+        if (!$this->article_merged) {
+            $schema = get_post_meta($post_id, '_llmo_schema_org', true);
+            if (empty($schema)) {
+                $schema = LLMO_Schema_Generator::generate_schema($post_id);
+            }
+            $this->echo_json_ld($schema);
+        }
+
+        if (!$this->faqpage_merged && $this->is_faq_view() && $this->should_output_faqpage($post_id)) {
+            $this->echo_json_ld($this->faqpage_entity($post_id, true));
+        }
+    }
+
+    /**
+     * @param mixed $data
+     * @param mixed $jsonld
+     * @return mixed
+     */
+    public function merge_rank_math_graph($data, $jsonld = null) {
+        return $this->merge_seo_graph($data);
+    }
+
+    /**
+     * @param mixed $graph
+     * @param mixed $context
+     * @return mixed
+     */
+    public function merge_yoast_graph($graph, $context = null) {
+        return $this->merge_seo_graph($graph);
+    }
+
+    /**
+     * @param string $content
+     * @return string
+     */
+    public function insert_faq($content) {
+        if (!$this->faq_enabled() || !$this->is_faq_view() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        if ($this->faq_inserted || LLMO_FAQ_Shortcode::was_rendered() || $this->content_has_faq_shortcode()) {
+            return $content;
+        }
+
+        $html = LLMO_FAQ_Shortcode::render_faq(array('show_title' => 'yes'));
+        if ($html === '') {
+            return $content;
+        }
+
+        $this->faq_inserted = true;
+        if ($this->faq_position() === 'before_content') {
+            return $html . $content;
+        }
+
+        return $content . $html;
+    }
+
+    public function render_faq_fallback() {
+        if ($this->faq_inserted || LLMO_FAQ_Shortcode::was_rendered() || !$this->faq_enabled() || !$this->is_faq_view()) {
+            return;
+        }
+        if ($this->content_has_faq_shortcode()) {
+            return;
+        }
+
+        $html = LLMO_FAQ_Shortcode::render_faq(array('show_title' => 'yes'));
+        if ($html === '') {
+            return;
+        }
+
+        $this->faq_inserted = true;
+        echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_faq() escapes its output.
+    }
+
+    /**
+     * @param mixed $data
+     * @return mixed
+     */
+    private function merge_seo_graph($data) {
+        if (!is_array($data) || !$this->is_llmo_content_view()) {
+            return $data;
+        }
+
+        $post_id = (int) get_the_ID();
+        $matching_types = $this->matching_schema_types();
+        foreach ($data as $key => $entity) {
+            if (!is_array($entity)) {
+                continue;
+            }
+            $types = isset($entity['@type']) ? (array) $entity['@type'] : array();
+            if ($matching_types !== array() && array_intersect($types, $matching_types)) {
+                $data[$key] = $this->supplement_content_node($entity);
+                $this->article_merged = true;
+            }
+            if (in_array('FAQPage', $types, true) && $this->is_faq_view() && $this->should_output_faqpage($post_id)) {
+                $data[$key] = $this->merge_into_faqpage($entity, $post_id);
+                $this->faqpage_merged = true;
+            }
+        }
+
+        if (!$this->faqpage_merged && $this->is_faq_view() && $this->should_output_faqpage($post_id)) {
+            $faqpage = $this->faqpage_entity($post_id, false);
+            if (!empty($faqpage)) {
+                $data['llmo-faqpage'] = $faqpage;
+                $this->faqpage_merged = true;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $entity
+     * @return array<string, mixed>
+     */
+    private function supplement_content_node(array $entity) {
+        $extra = $this->stored_schema();
+        if ($extra === array()) {
+            return $entity;
+        }
+
+        unset($extra['@context'], $extra['@type'], $extra['mainEntity'], $extra['headline'], $extra['name'], $extra['url']);
+        foreach ($extra as $key => $value) {
+            if ($value === '' || $value === null || $value === array()) {
+                continue;
+            }
+            if (!empty($entity[$key])) {
+                continue;
+            }
+            $entity[$key] = $value;
+        }
+
+        return $entity;
+    }
+
+    /**
+     * Types in an SEO-plugin graph that already represent the node we would print.
+     *
+     * @return array<int, string>
+     */
+    private function matching_schema_types() {
+        $schema = $this->stored_schema();
+        if ($schema === array()) {
+            $post_id = (int) get_the_ID();
+            if ($post_id > 0) {
+                $generated = LLMO_Schema_Generator::generate_schema($post_id);
+                $schema = is_array($generated) ? $generated : array();
+            }
+        }
+
+        $type = isset($schema['@type']) ? (string) $schema['@type'] : '';
+        if (in_array($type, array('Article', 'BlogPosting', 'NewsArticle'), true)) {
+            return array('Article', 'BlogPosting', 'NewsArticle');
+        }
+        if ($type === 'WebPage') {
+            return array('WebPage');
+        }
+        if (in_array($type, array('Organization', 'LocalBusiness'), true)) {
+            return array('Organization', 'LocalBusiness');
+        }
+
+        return array();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function stored_schema() {
+        $post_id = (int) get_the_ID();
+        if ($post_id < 1) {
+            return array();
+        }
+        $schema = get_post_meta($post_id, '_llmo_schema_org', true);
+        if (is_string($schema)) {
+            $decoded = json_decode($schema, true);
+            $schema = is_array($decoded) ? $decoded : array();
+        }
+        return is_array($schema) ? $schema : array();
+    }
+
+    /**
+     * @param array<string, mixed> $entity
+     * @return array<string, mixed>
+     */
+    private function merge_into_faqpage(array $entity, $post_id) {
+        $ours = $this->question_entities($post_id);
+        if ($ours === array()) {
+            return $entity;
+        }
+
+        $existing = isset($entity['mainEntity']) ? $entity['mainEntity'] : array();
+        if (isset($existing['@type'])) {
+            $existing = array($existing);
+        }
+        if (!is_array($existing)) {
+            $existing = array();
+        }
+
+        $known = array();
+        foreach ($existing as $item) {
+            if (is_array($item) && isset($item['name'])) {
+                $known[strtolower(trim((string) $item['name']))] = true;
+            }
+        }
+        foreach ($ours as $question) {
+            $key = strtolower(trim((string) $question['name']));
+            if (isset($known[$key])) {
+                continue;
+            }
+            $existing[] = $question;
+            $known[$key] = true;
+        }
+        $entity['mainEntity'] = array_values($existing);
+
+        return $entity;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function faqpage_entity($post_id, $with_context) {
+        $questions = $this->question_entities($post_id);
+        if ($questions === array()) {
+            return array();
+        }
+
+        $entity = array(
+            '@type' => 'FAQPage',
+            'mainEntity' => $questions,
+        );
+        if ($with_context) {
+            $entity = array('@context' => 'https://schema.org') + $entity;
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function question_entities($post_id) {
+        $entities = array();
+        foreach ($this->faq_pairs($post_id) as $faq) {
+            $entities[] = array(
+                '@type' => 'Question',
+                'name' => $faq['question'],
+                'acceptedAnswer' => array(
+                    '@type' => 'Answer',
+                    'text' => $faq['answer'],
+                ),
             );
-            
-            foreach ($faq_data as $item) {
-                if (empty($item['question']) || empty($item['answer'])) {
-                    continue;
-                }
-                $faq_schema['mainEntity'][] = array(
-                    '@type' => 'Question',
-                    'name' => $item['question'],
-                    'acceptedAnswer' => array(
-                        '@type' => 'Answer',
-                        'text' => $item['answer']
-                    )
-                );
-            }
-            
-            if (!empty($faq_schema['mainEntity'])) {
-                $faq_json = $this->encode_json_ld($faq_schema);
-                if (false !== $faq_json) {
-                    echo '<script type="application/ld+json">' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
-                    echo $faq_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
-                    echo "\n" . '</script>' . "\n";
-                }
-            }
         }
+        return $entities;
+    }
+
+    /**
+     * @return array<int, array{question: string, answer: string}>
+     */
+    private function faq_pairs($post_id) {
+        $raw = get_post_meta($post_id, '_llmo_faq', true);
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            $raw = is_array($decoded) ? $decoded : array();
+        }
+        if (!is_array($raw)) {
+            return array();
+        }
+
+        $pairs = array();
+        foreach ($raw as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $question = trim(wp_strip_all_tags((string) (isset($item['question']) ? $item['question'] : '')));
+            $answer = trim(wp_strip_all_tags((string) (isset($item['answer']) ? $item['answer'] : '')));
+            if ($question === '' || $answer === '') {
+                continue;
+            }
+            $pairs[] = array(
+                'question' => $question,
+                'answer' => $answer,
+            );
+        }
+        return $pairs;
+    }
+
+    private function should_output_faqpage($post_id) {
+        if ($this->faq_pairs($post_id) === array()) {
+            return false;
+        }
+        if ($this->faq_enabled()) {
+            return true;
+        }
+        return $this->content_has_faq_shortcode();
+    }
+
+    private function faq_enabled() {
+        return get_option('llmo_blog_optimizer_show_faq', 'yes') === 'yes';
+    }
+
+    private function faq_position() {
+        $position = get_option('llmo_blog_optimizer_faq_position', 'after_content');
+        return in_array($position, array('before_content', 'after_content'), true) ? $position : 'after_content';
+    }
+
+    private function content_has_faq_shortcode() {
+        $post = get_post();
+        return $post instanceof WP_Post && has_shortcode($post->post_content, 'llmo_faq');
+    }
+
+    private function is_llmo_content_view() {
+        return is_singular() || is_front_page() || is_home();
+    }
+
+    /**
+     * The FAQ belongs on one post or one page. The blog index keeps its existing schema.
+     */
+    private function is_faq_view() {
+        return is_singular();
+    }
+
+    /**
+     * @param mixed $data
+     */
+    private function echo_json_ld($data) {
+        if (empty($data)) {
+            return;
+        }
+        $json = $this->encode_json_ld($data);
+        if (false === $json) {
+            return;
+        }
+        echo '<script type="application/ld+json">' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
+        echo $json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Encoded via encode_json_ld().
+        echo "\n" . '</script>' . "\n";
     }
 }
 

@@ -162,9 +162,18 @@ class LLMO_API_Client {
             $error_data = json_decode($response_body, true);
             $raw_message = (is_array($error_data) && isset($error_data['message'])) ? $error_data['message'] : '';
             $error_message = $this->sanitize_remote_message($raw_message);
-            
+            $code = 'api_error';
+            if ((int) $response_code === 402) {
+                $code = 'insufficient_tokens';
+            } elseif ((int) $response_code === 422) {
+                $code = 'invalid_page';
+            }
+
             return new WP_Error('api_error', $error_message, array(
-                'status' => $response_code,
+                'status' => (int) $response_code,
+                'code' => $code,
+                'required' => (is_array($error_data) && isset($error_data['required'])) ? $error_data['required'] : null,
+                'balance' => (is_array($error_data) && isset($error_data['balance'])) ? $error_data['balance'] : null,
             ));
         }
         

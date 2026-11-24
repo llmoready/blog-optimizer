@@ -32,7 +32,7 @@ Automatically optimize your WordPress blog posts for better visibility in AI sea
 ## Configuration
 
 1. Go to **LLMO Optimizer > Settings**
-2. Get your free API key from [libers.ai](https://libers.ai)
+2. Get your API key from [libers.ai](https://libers.ai)
 3. Enter your API key
 4. Click **Test Connection**
 5. Configure auto-optimization settings
@@ -61,7 +61,7 @@ Enable auto-optimization in settings to automatically optimize new posts when pu
 
 - WordPress 5.8 or higher
 - PHP 7.4 or higher
-- LLMO Ready account (free tier available)
+- Libers Suite account with website tokens (0.25 tokens per post optimization)
 
 ## API Integration
 

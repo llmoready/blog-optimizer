@@ -1,0 +1,670 @@
+# Copyright (C) 2026 LLMO Ready by Libers GmbH
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: LLMO Ready - Blog Optimizer 1.0.22\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/llmo-ready-blog-optimizer\n"
+"Last-Translator: Libers GmbH <support@libers.ai>\n"
+"Language-Team: Deutsch\n"
+"Language: de_DE_formal\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"PO-Revision-Date: 2026-11-23 16:00+0100\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: llmo-ready-blog-optimizer\n"
+
+#. Plugin Name of the plugin
+#: llmo-blog-optimizer.php
+msgid "LLMO Ready - Blog Optimizer"
+msgstr "LLMO Ready - Blog Optimizer"
+
+#. Plugin URI of the plugin
+#: llmo-blog-optimizer.php
+msgid "https://wordpress.org/plugins/llmo-ready-blog-optimizer/"
+msgstr "https://wordpress.org/plugins/llmo-ready-blog-optimizer/"
+
+#. Description of the plugin
+#: llmo-blog-optimizer.php
+msgid "Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity)."
+msgstr "Setzt automatisch Schema.org-JSON-LD mit KI-optimierten Inhalten aus Libers Suite in deine Beiträge. So werden sie in generativen KI-Suchmaschinen besser sichtbar (ChatGPT, Google SGE, Perplexity)."
+
+#. Author of the plugin
+#: llmo-blog-optimizer.php
+msgid "LLMO Ready by Libers GmbH"
+msgstr "LLMO Ready by Libers GmbH"
+
+#. Author URI of the plugin
+#: llmo-blog-optimizer.php
+msgid "https://libers.ai"
+msgstr "https://libers.ai"
+
+#: admin/class-llmo-admin.php:132
+msgid "The FAQ is shown on the post and on the page. Search engines only accept FAQ markup when visitors can read the same questions and answers. You set the position and the display in the plugin settings."
+msgstr "Die FAQ steht auf dem Beitrag und auf der Seite. Suchmaschinen erkennen FAQ-Markup nur, wenn Besucher dieselben Fragen und Antworten lesen können. Position und Anzeige stellst du in den Plugin-Einstellungen ein."
+
+#: admin/class-llmo-admin.php:133
+msgid "Open settings"
+msgstr "Einstellungen öffnen"
+
+#: admin/class-llmo-admin.php:135
+msgid "Dismiss"
+msgstr "Hinweis schließen"
+
+#: admin/class-llmo-admin.php:161
+#: admin/class-llmo-bulk-optimizer.php:67
+#: llmo-blog-optimizer.php:490
+msgid "LLMO Blog Optimizer"
+msgstr "LLMO Blog Optimizer"
+
+#: admin/class-llmo-admin.php:162
+msgid "LLMO Optimizer"
+msgstr "LLMO Optimizer"
+
+#: admin/class-llmo-admin.php:172
+#: admin/class-llmo-admin.php:173
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: admin/class-llmo-admin.php:181
+#: admin/class-llmo-admin.php:182
+msgid "Bulk Optimizer"
+msgstr "Beiträge optimieren"
+
+#: admin/class-llmo-admin.php:219
+msgid "API Configuration"
+msgstr "API-Konfiguration"
+
+#: admin/class-llmo-admin.php:226
+msgid "API Key"
+msgstr "API-Schlüssel"
+
+#: admin/class-llmo-admin.php:234
+msgid "Data Processing Consent"
+msgstr "Einwilligung zur Verarbeitung"
+
+#: admin/class-llmo-admin.php:242
+msgid "General Settings"
+msgstr "Allgemeine Einstellungen"
+
+#: admin/class-llmo-admin.php:249
+msgid "Auto-Optimize"
+msgstr "Automatisch optimieren"
+
+#: admin/class-llmo-admin.php:257
+msgid "Post Types"
+msgstr "Inhaltstypen"
+
+#: admin/class-llmo-admin.php:277
+msgid "FAQ on the page"
+msgstr "FAQ auf der Seite"
+
+#: admin/class-llmo-admin.php:285
+msgid "FAQ position"
+msgstr "FAQ-Position"
+
+#: admin/class-llmo-admin.php:294
+msgid "Organization / Business Information"
+msgstr "Angaben zur Organisation"
+
+#: admin/class-llmo-admin.php:301
+msgid "Type"
+msgstr "Typ"
+
+#: admin/class-llmo-admin.php:302
+msgid "Name"
+msgstr "Name"
+
+#: admin/class-llmo-admin.php:303
+msgid "Phone"
+msgstr "Telefon"
+
+#: admin/class-llmo-admin.php:304
+msgid "Email"
+msgstr "E-Mail"
+
+#: admin/class-llmo-admin.php:305
+msgid "Street Address"
+msgstr "Straße"
+
+#: admin/class-llmo-admin.php:306
+msgid "City"
+msgstr "Ort"
+
+#: admin/class-llmo-admin.php:307
+msgid "Postal Code"
+msgstr "Postleitzahl"
+
+#: admin/class-llmo-admin.php:308
+msgid "Country"
+msgstr "Land"
+
+#: admin/class-llmo-admin.php:416
+msgid "Optimizing..."
+msgstr "Wird optimiert ..."
+
+#: admin/class-llmo-admin.php:417
+msgid "Optimized!"
+msgstr "Optimiert."
+
+#: admin/class-llmo-admin.php:418
+msgid "Error occurred"
+msgstr "Ein Fehler ist aufgetreten."
+
+#: admin/class-llmo-admin.php:419
+msgid "Are you sure you want to re-optimize this post?"
+msgstr "Diesen Beitrag erneut optimieren?"
+
+#: admin/class-llmo-admin.php:420
+msgid "Testing..."
+msgstr "Wird geprüft ..."
+
+#: admin/class-llmo-admin.php:421
+#: admin/class-llmo-admin.php:545
+msgid "Test Connection"
+msgstr "Verbindung prüfen"
+
+#: admin/class-llmo-admin.php:422
+#: admin/class-llmo-bulk-optimizer.php:211
+#: llmo-blog-optimizer.php:585
+msgid "Re-optimize"
+msgstr "Erneut optimieren"
+
+#: admin/class-llmo-admin.php:423
+#: llmo-blog-optimizer.php:595
+msgid "Optimize Now"
+msgstr "Jetzt optimieren"
+
+#: admin/class-llmo-admin.php:424
+msgid "No pending posts to optimize"
+msgstr "Hier ist nichts mehr zu optimieren."
+
+#: admin/class-llmo-admin.php:425
+msgid "Please select posts to optimize"
+msgstr "Wähle zuerst Beiträge aus."
+
+#: admin/class-llmo-admin.php:426
+msgid "Optimization complete!"
+msgstr "Optimierung abgeschlossen."
+
+#: admin/class-llmo-admin.php:427
+msgid "Optimization is still running. Results will appear when ready."
+msgstr "Die Optimierung läuft noch. Das Ergebnis erscheint, sobald es fertig ist."
+
+#: admin/class-llmo-admin.php:457
+msgid "Successfully connected with LLMO Ready!"
+msgstr "Verbunden. Libers Suite optimiert jetzt deine Beiträge."
+
+#: admin/class-llmo-admin.php:458
+msgid "Your website is being analyzed. You can now start optimizing your blog posts."
+msgstr "Deine Website wird ausgewertet. Du kannst deine Beiträge jetzt optimieren."
+
+#: admin/class-llmo-admin.php:467
+#: admin/class-llmo-admin.php:480
+msgid "Connect with Libers Suite"
+msgstr "Mit Libers Suite verbinden"
+
+#: admin/class-llmo-admin.php:470
+msgid "To use the Blog Optimizer, connect your website with your LLMO Ready account. Your website will be automatically analyzed and you will receive an API token."
+msgstr "Verbinde deine Website mit deinem Libers Suite Konto. Die Website wird ausgewertet. Du erhältst einen API-Schlüssel."
+
+#: admin/class-llmo-admin.php:473
+msgid "Click the button below to open LLMO Ready"
+msgstr "Klicke auf den Button. Libers Suite öffnet sich."
+
+#: admin/class-llmo-admin.php:474
+msgid "Register or log in to your account"
+msgstr "Registriere dich oder melde dich an."
+
+#: admin/class-llmo-admin.php:475
+msgid "Your API token will be set up automatically"
+msgstr "Dein API-Schlüssel wird automatisch eingetragen."
+
+#: admin/class-llmo-admin.php:483
+msgid "Create account (7-day trial)"
+msgstr "Konto anlegen (7 Tage testen)"
+
+#: admin/class-llmo-admin.php:491
+msgid "Connected with Libers Suite"
+msgstr "Mit Libers Suite verbunden"
+
+#: admin/class-llmo-admin.php:494
+msgid "Your website is connected. Blog posts will be automatically optimized with Schema.org markup for better AI visibility."
+msgstr "Deine Website ist verbunden. Beiträge bekommen Schema.org-Markup. So werden sie für KI-Suche besser sichtbar."
+
+#: admin/class-llmo-admin.php:499
+msgid "Open LLMO Ready Dashboard"
+msgstr "Libers Suite öffnen"
+
+#: admin/class-llmo-admin.php:528
+msgid "Configure your API connection and data processing consent."
+msgstr "Hier stellst du die API-Verbindung und die Einwilligung ein."
+
+#: admin/class-llmo-admin.php:529
+msgid "You must provide consent before any content is sent to our API for optimization."
+msgstr "Gib die Einwilligung, bevor ein Inhalt zur Optimierung an unsere API gesendet wird."
+
+#: admin/class-llmo-admin.php:543
+msgid "Enter your API key"
+msgstr "API-Schlüssel eingeben"
+
+#. translators: %s: Link to LLMO Ready app dashboard
+#: admin/class-llmo-admin.php:552
+#, php-format
+msgid "Get your API key from %s"
+msgstr "Den API-Schlüssel holst du bei %s"
+
+#: admin/class-llmo-admin.php:573
+msgid "I consent to sending my post content to Libers GmbH for AI optimization and processing."
+msgstr "Ich willige ein, dass der Inhalt meiner Beiträge zur KI-Optimierung an die Libers GmbH gesendet und dort verarbeitet wird."
+
+#: admin/class-llmo-admin.php:577
+msgid "By checking this box, you agree that your post title, content, excerpt, URL, publication date, author name and featured image URL will be sent to Libers GmbH via secure HTTPS for AI optimization and analysis."
+msgstr "Mit diesem Häkchen willigst du ein, dass Titel, Inhalt, Auszug, Adresse, Veröffentlichungsdatum, Autorname und die Adresse des Beitragsbilds deiner Beiträge per HTTPS an die Libers GmbH gesendet werden. Dort werden sie zur KI-Optimierung und Auswertung verarbeitet."
+
+#. translators: %1$s: Privacy Policy link, %2$s: Terms of Use link
+#: admin/class-llmo-admin.php:584
+#, php-format
+msgid "Please review our %1$s and %2$s before proceeding."
+msgstr "Lies unsere %1$s und unsere %2$s, bevor du fortfährst."
+
+#: admin/class-llmo-admin.php:585
+msgid "Privacy Policy"
+msgstr "Datenschutzerklärung"
+
+#: admin/class-llmo-admin.php:586
+msgid "Terms of Use"
+msgstr "Nutzungsbedingungen"
+
+#: admin/class-llmo-admin.php:595
+msgid "Consent required:"
+msgstr "Einwilligung nötig:"
+
+#: admin/class-llmo-admin.php:596
+msgid "You must check this box and save settings before optimizing posts. No data will be sent without your explicit consent."
+msgstr "Setze das Häkchen und speichere die Einstellungen, bevor du Beiträge optimierst. Ohne deine ausdrückliche Einwilligung wird kein Inhalt gesendet."
+
+#: admin/class-llmo-admin.php:603
+msgid "Consent given."
+msgstr "Einwilligung erteilt."
+
+#: admin/class-llmo-admin.php:604
+msgid "You can now optimize your posts. You may withdraw consent at any time by unchecking this box."
+msgstr "Du kannst deine Beiträge jetzt optimieren. Die Einwilligung ziehst du zurück, indem du das Häkchen entfernst."
+
+#: admin/class-llmo-admin.php:615
+msgid "Configure general optimization settings."
+msgstr "Hier stellst du die Optimierung ein."
+
+#: admin/class-llmo-admin.php:630
+msgid "Automatically optimize posts when published"
+msgstr "Beiträge beim Veröffentlichen automatisch optimieren"
+
+#: admin/class-llmo-admin.php:647
+msgid "Show the questions on the post or page"
+msgstr "Zeige die Fragen auf dem Beitrag oder der Seite"
+
+#: admin/class-llmo-admin.php:650
+msgid "The questions are shown on the post or page. You choose whether they appear before or after the text. Search engines only accept FAQ markup for questions and answers that visitors can read on the page. That is why the block is public. If you turn it off, the FAQ markup is left out as well. A shortcode [llmo_faq] in the text still shows the questions."
+msgstr "Die Fragen stehen auf dem Beitrag oder der Seite. Du wählst, ob sie vor oder nach dem Text stehen. Suchmaschinen erkennen FAQ-Markup nur an, wenn Besucher dieselben Fragen und Antworten auf der Seite lesen können. Deshalb ist der Block öffentlich. Schaltest du ihn aus, entfällt auch das FAQ-Markup. Ein Shortcode [llmo_faq] im Text zeigt die Fragen weiterhin."
+
+#: admin/class-llmo-admin.php:653
+msgid "If you use Rank Math or Yoast, we add our article details to their markup. Without those plugins we print the article markup ourselves."
+msgstr "Nutzt du Rank Math oder Yoast, ergänzen wir deren Markup. Ohne diese Plugins setzen wir das Artikel-Markup selbst."
+
+#: admin/class-llmo-admin.php:665
+msgid "Before the text"
+msgstr "Vor dem Text"
+
+#: admin/class-llmo-admin.php:666
+msgid "After the text"
+msgstr "Nach dem Text"
+
+#: admin/class-llmo-admin.php:704
+msgid "Configure your organization information for Schema.org markup on the homepage."
+msgstr "Diese Angaben stehen als Schema.org-Markup auf der Startseite."
+
+#: admin/class-llmo-admin.php:716
+msgid "Organization"
+msgstr "Organisation"
+
+#: admin/class-llmo-admin.php:717
+msgid "Local Business"
+msgstr "Lokales Unternehmen"
+
+#: admin/class-llmo-admin.php:718
+msgid "Corporation"
+msgstr "Kapitalgesellschaft"
+
+#: admin/class-llmo-admin.php:719
+msgid "Educational Organization"
+msgstr "Bildungseinrichtung"
+
+#: admin/class-llmo-admin.php:720
+msgid "Government Organization"
+msgstr "Behörde"
+
+#: admin/class-llmo-admin.php:721
+msgid "NGO"
+msgstr "NGO"
+
+#: admin/class-llmo-admin.php:749
+#: admin/class-llmo-admin.php:778
+#: llmo-blog-optimizer.php:333
+#: llmo-blog-optimizer.php:368
+msgid "Invalid post ID"
+msgstr "Ungültige Beitrags-ID."
+
+#: admin/class-llmo-admin.php:753
+#: admin/class-llmo-admin.php:782
+#: admin/class-llmo-admin.php:802
+msgid "Permission denied"
+msgstr "Keine Berechtigung."
+
+#: admin/class-llmo-admin.php:764
+msgid "Optimization queued"
+msgstr "Optimierung ist eingereiht."
+
+#: admin/class-llmo-admin.php:808
+msgid "API key is required"
+msgstr "Der API-Schlüssel fehlt."
+
+#: admin/class-llmo-admin.php:815
+msgid "Connection successful!"
+msgstr "Verbindung steht."
+
+#: admin/class-llmo-admin.php:817
+msgid "Connection failed. Please check your API key."
+msgstr "Verbindung fehlgeschlagen. Prüfe den API-Schlüssel."
+
+#: admin/class-llmo-bulk-optimizer.php:70
+msgid "Status:"
+msgstr "Status:"
+
+#: admin/class-llmo-bulk-optimizer.php:70
+msgid "Plugin is active and ready to optimize your blog posts."
+msgstr "Das Plugin ist aktiv. Deine Beiträge können optimiert werden."
+
+#: admin/class-llmo-bulk-optimizer.php:74
+msgid "Statistics"
+msgstr "Statistik"
+
+#: admin/class-llmo-bulk-optimizer.php:77
+msgid "Total Posts:"
+msgstr "Beiträge gesamt:"
+
+#. translators: %s: Number of posts
+#: admin/class-llmo-bulk-optimizer.php:81
+#, php-format
+msgid "%s posts"
+msgstr "%s Beiträge"
+
+#: admin/class-llmo-bulk-optimizer.php:86
+msgid "Optimized Posts:"
+msgstr "Optimierte Beiträge:"
+
+#. translators: %1$s: Number of optimized posts, %2$s: Percentage
+#. translators: %1$s: Number of pending posts, %2$s: Percentage
+#: admin/class-llmo-bulk-optimizer.php:90
+#: admin/class-llmo-bulk-optimizer.php:99
+#, php-format
+msgid "%1$s posts (%2$s%%)"
+msgstr "%1$s Beiträge (%2$s%%)"
+
+#: admin/class-llmo-bulk-optimizer.php:95
+msgid "Not Optimized:"
+msgstr "Noch nicht optimiert:"
+
+#: admin/class-llmo-bulk-optimizer.php:107
+msgid "Bulk Actions"
+msgstr "Aktionen"
+
+#: admin/class-llmo-bulk-optimizer.php:108
+msgid "Select posts on this page to optimize, or optimize all pending posts on this page."
+msgstr "Wähle Beiträge auf dieser Seite. Oder optimiere alle offenen Beiträge auf dieser Seite."
+
+#: admin/class-llmo-bulk-optimizer.php:111
+msgid "Optimize Pending on This Page"
+msgstr "Offene auf dieser Seite optimieren"
+
+#: admin/class-llmo-bulk-optimizer.php:115
+msgid "Optimize Selected"
+msgstr "Auswahl optimieren"
+
+#: admin/class-llmo-bulk-optimizer.php:119
+msgid "Optimization Progress"
+msgstr "Fortschritt"
+
+#: admin/class-llmo-bulk-optimizer.php:153
+msgid "Title"
+msgstr "Titel"
+
+#: admin/class-llmo-bulk-optimizer.php:154
+msgid "Date"
+msgstr "Datum"
+
+#: admin/class-llmo-bulk-optimizer.php:155
+msgid "Status"
+msgstr "Status"
+
+#: admin/class-llmo-bulk-optimizer.php:156
+msgid "AI Score"
+msgstr "KI-Wert"
+
+#: admin/class-llmo-bulk-optimizer.php:157
+msgid "Actions"
+msgstr "Aktionen"
+
+#: admin/class-llmo-bulk-optimizer.php:173
+msgid "LLMO-optimized"
+msgstr "Mit LLMO optimiert"
+
+#: admin/class-llmo-bulk-optimizer.php:175
+msgid "Not optimized"
+msgstr "Noch nicht optimiert"
+
+#: admin/class-llmo-bulk-optimizer.php:183
+msgid "AI-optimized"
+msgstr "KI-optimiert"
+
+#: admin/class-llmo-bulk-optimizer.php:190
+#: llmo-blog-optimizer.php:561
+msgid "Optimized"
+msgstr "Optimiert"
+
+#: admin/class-llmo-bulk-optimizer.php:194
+msgid "Pending"
+msgstr "Offen"
+
+#: admin/class-llmo-bulk-optimizer.php:211
+msgid "Optimize"
+msgstr "Optimieren"
+
+#: includes/class-llmo-api-client.php:95
+msgid "Optimization failed on the server."
+msgstr "Die Optimierung ist auf dem Server fehlgeschlagen."
+
+#: includes/class-llmo-api-client.php:113
+#: includes/class-llmo-api-client.php:123
+msgid "API request failed"
+msgstr "Die API-Anfrage ist fehlgeschlagen."
+
+#: includes/class-llmo-api-client.php:174
+msgid "Invalid JSON response from API"
+msgstr "Die API hat kein gültiges JSON geliefert."
+
+#: includes/class-llmo-faq-shortcode.php:71
+msgid "Frequently Asked Questions"
+msgstr "Häufig gestellte Fragen"
+
+#: includes/class-llmo-faq-widget.php:24
+msgid "LLMO FAQ"
+msgstr "LLMO FAQ"
+
+#: includes/class-llmo-faq-widget.php:26
+msgid "Display AI-generated FAQs"
+msgstr "Zeigt die per KI erzeugten Fragen."
+
+#: includes/class-llmo-faq-widget.php:39
+#: includes/class-llmo-faq-widget.php:69
+msgid "FAQ"
+msgstr "FAQ"
+
+#: includes/class-llmo-faq-widget.php:73
+msgid "Title:"
+msgstr "Titel:"
+
+#: includes/class-llmo-schema-generator.php:102
+msgid "Home"
+msgstr "Startseite"
+
+#: llmo-blog-optimizer.php:118
+msgid "Every 5 Minutes (LLMO)"
+msgstr "Alle 5 Minuten (LLMO)"
+
+#: llmo-blog-optimizer.php:325
+#: llmo-blog-optimizer.php:380
+msgid "API key not configured"
+msgstr "Der API-Schlüssel fehlt in den Einstellungen."
+
+#: llmo-blog-optimizer.php:328
+msgid "User consent required. Please enable data processing consent in plugin settings."
+msgstr "Einwilligung nötig. Aktiviere die Einwilligung zur Verarbeitung in den Plugin-Einstellungen."
+
+#: llmo-blog-optimizer.php:518
+msgid "Setup Required"
+msgstr "Einrichtung nötig"
+
+#: llmo-blog-optimizer.php:522
+msgid "Enter your API key in Settings"
+msgstr "Trag den API-Schlüssel in den Einstellungen ein."
+
+#: llmo-blog-optimizer.php:525
+msgid "Give consent to data processing"
+msgstr "Erteile die Einwilligung zur Verarbeitung."
+
+#: llmo-blog-optimizer.php:530
+msgid "Go to Settings"
+msgstr "Zu den Einstellungen"
+
+#: llmo-blog-optimizer.php:539
+msgid "Optimization pending…"
+msgstr "Die Optimierung läuft."
+
+#: llmo-blog-optimizer.php:541
+msgid "Results will be applied automatically within a few minutes."
+msgstr "Das Ergebnis wird in wenigen Minuten übernommen."
+
+#: llmo-blog-optimizer.php:545
+msgid "Optimization failed"
+msgstr "Optimierung fehlgeschlagen"
+
+#: llmo-blog-optimizer.php:550
+msgid "Not enough tokens. Top up in your LLMO Ready account, then try Optimize Now."
+msgstr "Zu wenig Tokens. Lade in Libers Suite Tokens auf. Danach klickst du auf Jetzt optimieren."
+
+#: llmo-blog-optimizer.php:552
+msgid "The last automatic optimization could not be queued. Try Optimize Now or check your connection."
+msgstr "Die letzte automatische Optimierung konnte nicht gestartet werden. Klicke auf Jetzt optimieren oder prüfe die Verbindung."
+
+#. translators: %s: localized date and time of last optimization
+#: llmo-blog-optimizer.php:567
+#, php-format
+msgid "Last optimized: %s"
+msgstr "Zuletzt optimiert: %s"
+
+#: llmo-blog-optimizer.php:577
+msgid "AI Readiness Score:"
+msgstr "KI-Wert:"
+
+#: llmo-blog-optimizer.php:591
+msgid "Not optimized yet"
+msgstr "Noch nicht optimiert"
+
+#: llmo-blog-optimizer.php:599
+msgid "Please wait. This can take up to a few minutes…"
+msgstr "Bitte warten. Das kann einige Minuten dauern."
+
+#: llmo-blog-optimizer.php:603
+msgid "Complete setup in Settings to enable optimization."
+msgstr "Schließe die Einrichtung in den Einstellungen ab. Danach kannst du optimieren."
+
+#: admin/class-llmo-bulk-optimizer.php
+msgid "Each page costs tokens. If the balance is too low, the page stays open and the reason is shown here."
+msgstr "Jede Seite kostet Tokens. Reicht das Guthaben nicht, bleibt die Seite offen und der Grund steht hier."
+
+#: admin/class-llmo-admin.php
+#, php-format
+msgid "Not enough tokens. This page costs %1$s tokens. Your balance is %2$s."
+msgstr "Nicht genug Tokens. Diese Seite kostet %1$s Token. Dein Guthaben ist %2$s."
+
+#: admin/class-llmo-admin.php
+msgid "This page has no text. It stays open."
+msgstr "Diese Seite hat keinen Text. Sie bleibt offen."
+
+#: admin/class-llmo-admin.php
+#, php-format
+msgid "%1$s pages optimized. %2$s skipped. %3$s"
+msgstr "%1$s Seiten optimiert. %2$s übersprungen. %3$s"
+
+
+msgid "Really optimize again? This uses tokens."
+msgstr "Wirklich erneut optimieren? Kostet Tokens."
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#, php-format
+msgid "Post %1$s of %2$s is being optimized: %3$s (%4$s)"
+msgstr "Beitrag %1$s von %2$s wird optimiert: %3$s (%4$s)"
+
+msgid "Waiting"
+msgstr "Wartet"
+
+msgid "Running"
+msgstr "Läuft"
+
+msgid "Skipped"
+msgstr "Übersprungen"
+
+msgid "Still running on the server"
+msgstr "Läuft noch auf dem Server"
+
+msgid "Running. Keep this page open until every post is finished."
+msgstr "Läuft. Lass diese Seite offen, bis alle Beiträge fertig sind."
+
+msgid "1 post optimized."
+msgstr "1 Beitrag optimiert."
+
+#, php-format
+msgid "%s posts optimized."
+msgstr "%s Beiträge optimiert."
+
+msgid "Libers Suite wrote three to five questions and answers for each one. You see them after the post text."
+msgstr "Libers Suite hat für jeden drei bis fünf Fragen und Antworten geschrieben. Du siehst sie hinter dem Text des Beitrags."
+
+msgid "View post"
+msgstr "Beitrag ansehen"
+
+msgid "Reload this page later. The post keeps running on the server."
+msgstr "Lade die Seite später neu. Der Beitrag läuft auf dem Server weiter."
+
+msgid "Readability for AI (before optimization)"
+msgstr "Lesbarkeit für KI (vor der Optimierung)"
+
+msgid "How well AI systems understand your original text. The questions and answers from the optimization are not included in this number."
+msgstr "Wie gut KI-Systeme deinen ursprünglichen Text verstehen. Die Fragen und Antworten aus der Optimierung sind darin noch nicht eingerechnet."
+
+#, php-format
+msgid "%s skipped."
+msgstr "%s übersprungen."
+
+#, php-format
+msgid "%s system page without its own text is hidden"
+msgid_plural "%s system pages without their own text are hidden"
+msgstr[0] "%s Systemseite ohne eigenen Text ausgeblendet"
+msgstr[1] "%s Systemseiten ohne eigenen Text ausgeblendet"
+
+msgid "Dismiss this notice"
+msgstr "Diesen Hinweis schließen"

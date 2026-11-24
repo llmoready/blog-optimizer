@@ -29,6 +29,8 @@ class LLMO_Blog_Optimizer_Admin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_init', array($this, 'handle_api_token_callback'));
+        add_action('admin_init', array($this, 'dismiss_faq_public_notice'));
+        add_action('admin_notices', array($this, 'render_faq_public_notice'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_ajax_llmo_optimize_post', array($this, 'ajax_optimize_post'));
         add_action('wp_ajax_llmo_poll_optimization', array($this, 'ajax_poll_optimization'));
@@ -108,6 +110,49 @@ class LLMO_Blog_Optimizer_Admin {
         );
     }
     
+    /**
+     * Tell the site owner that the FAQ is public, and why.
+     */
+    public function render_faq_public_notice() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        if (get_user_meta(get_current_user_id(), 'llmo_blog_faq_notice_dismissed', true) === LLMO_BLOG_OPTIMIZER_VERSION) {
+            return;
+        }
+
+        $settings_url = admin_url('admin.php?page=llmo-blog-optimizer');
+        $dismiss_url = wp_nonce_url(
+            admin_url('admin.php?page=llmo-blog-optimizer&llmo_dismiss_faq_notice=1'),
+            'llmo_dismiss_faq_notice'
+        );
+        ?>
+        <div class="notice notice-info">
+            <p>
+                <?php esc_html_e('The FAQ is shown on the post and on the page. Search engines only accept FAQ markup when visitors can read the same questions and answers. You set the position and the display in the plugin settings.', 'llmo-ready-blog-optimizer'); ?>
+                <a href="<?php echo esc_url($settings_url); ?>"><?php esc_html_e('Open settings', 'llmo-ready-blog-optimizer'); ?></a>
+            </p>
+            <p><a href="<?php echo esc_url($dismiss_url); ?>"><?php esc_html_e('Dismiss', 'llmo-ready-blog-optimizer'); ?></a></p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Hide the FAQ notice for this administrator until the next plugin version.
+     */
+    public function dismiss_faq_public_notice() {
+        if (!isset($_GET['llmo_dismiss_faq_notice'])) {
+            return;
+        }
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        check_admin_referer('llmo_dismiss_faq_notice');
+        update_user_meta(get_current_user_id(), 'llmo_blog_faq_notice_dismissed', LLMO_BLOG_OPTIMIZER_VERSION);
+        wp_safe_redirect(remove_query_arg(array('llmo_dismiss_faq_notice', '_wpnonce')));
+        exit;
+    }
+
     /**
      * Add admin menu
      */
@@ -214,6 +259,34 @@ class LLMO_Blog_Optimizer_Admin {
             'llmo-blog-optimizer',
             'llmo_blog_optimizer_general_section'
         );
+
+        register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_show_faq', array(
+            'type' => 'string',
+            'sanitize_callback' => array($this, 'sanitize_yes_checkbox'),
+            'default' => 'yes',
+        ));
+
+        register_setting('llmo_blog_optimizer_settings', 'llmo_blog_optimizer_faq_position', array(
+            'type' => 'string',
+            'sanitize_callback' => array($this, 'sanitize_faq_position'),
+            'default' => 'after_content',
+        ));
+
+        add_settings_field(
+            'llmo_blog_optimizer_show_faq',
+            __('FAQ on the page', 'llmo-ready-blog-optimizer'),
+            array($this, 'render_show_faq_field'),
+            'llmo-blog-optimizer',
+            'llmo_blog_optimizer_general_section'
+        );
+
+        add_settings_field(
+            'llmo_blog_optimizer_faq_position',
+            __('FAQ position', 'llmo-ready-blog-optimizer'),
+            array($this, 'render_faq_position_field'),
+            'llmo-blog-optimizer',
+            'llmo_blog_optimizer_general_section'
+        );
         
         // Organization section
         add_settings_section(
@@ -262,6 +335,15 @@ class LLMO_Blog_Optimizer_Admin {
      */
     public function sanitize_yes_checkbox($value) {
         return ($value === 'yes') ? 'yes' : '';
+    }
+
+    /**
+     * @param mixed $value
+     * @return string
+     */
+    public function sanitize_faq_position($value) {
+        $value = is_string($value) ? $value : '';
+        return in_array($value, array('before_content', 'after_content'), true) ? $value : 'after_content';
     }
 
     /**
@@ -330,19 +412,47 @@ class LLMO_Blog_Optimizer_Admin {
             'nonce' => wp_create_nonce('llmo_admin_nonce'),
             'pollInterval' => 10000,
             'pollMaxAttempts' => 30,
+            'showFaq' => get_option('llmo_blog_optimizer_show_faq', 'yes') === 'yes' ? 'yes' : 'no',
             'strings' => array(
                 'optimizing' => __('Optimizing...', 'llmo-ready-blog-optimizer'),
                 'optimized' => __('Optimized!', 'llmo-ready-blog-optimizer'),
+                'optimizedState' => __('Optimized', 'llmo-ready-blog-optimizer'),
+                'pending' => __('Pending', 'llmo-ready-blog-optimizer'),
                 'error' => __('Error occurred', 'llmo-ready-blog-optimizer'),
-                'confirm_reoptimize' => __('Are you sure you want to re-optimize this post?', 'llmo-ready-blog-optimizer'),
+                'confirmReoptimize' => __('Really optimize again? This uses tokens.', 'llmo-ready-blog-optimizer'),
+                'cancelReoptimize' => __('Cancel', 'llmo-ready-blog-optimizer'),
                 'testing' => __('Testing...', 'llmo-ready-blog-optimizer'),
                 'testConnection' => __('Test Connection', 'llmo-ready-blog-optimizer'),
                 'reoptimize' => __('Re-optimize', 'llmo-ready-blog-optimizer'),
                 'optimizeNow' => __('Optimize Now', 'llmo-ready-blog-optimizer'),
                 'noPending' => __('No pending posts to optimize', 'llmo-ready-blog-optimizer'),
                 'selectPosts' => __('Please select posts to optimize', 'llmo-ready-blog-optimizer'),
-                'optimizationComplete' => __('Optimization complete!', 'llmo-ready-blog-optimizer'),
                 'optimizationTimeout' => __('Optimization is still running. Results will appear when ready.', 'llmo-ready-blog-optimizer'),
+                /* translators: %1$s: token cost. %2$s: token balance. */
+                'insufficient' => __('Not enough tokens. This page costs %1$s tokens. Your balance is %2$s.', 'llmo-ready-blog-optimizer'),
+                'noText' => __('This page has no text. It stays open.', 'llmo-ready-blog-optimizer'),
+                /* translators: %1$s: number of optimized pages. %2$s: number of skipped pages. %3$s: reason. */
+                'bulkPartial' => __('%1$s pages optimized. %2$s skipped. %3$s', 'llmo-ready-blog-optimizer'),
+                /* translators: %1$s: current post number. %2$s: total posts. %3$s: post title. %4$s: elapsed time. */
+                'progressCurrent' => __('Post %1$s of %2$s is being optimized: %3$s (%4$s)', 'llmo-ready-blog-optimizer'),
+                'rowWaiting' => __('Waiting', 'llmo-ready-blog-optimizer'),
+                'rowRunning' => __('Running', 'llmo-ready-blog-optimizer'),
+                'rowSkipped' => __('Skipped', 'llmo-ready-blog-optimizer'),
+                'rowStillRunning' => __('Still running on the server', 'llmo-ready-blog-optimizer'),
+                'bulkDoneOne' => __('1 post optimized.', 'llmo-ready-blog-optimizer'),
+                /* translators: %s: number of optimized posts. */
+                'bulkDoneMany' => __('%s posts optimized.', 'llmo-ready-blog-optimizer'),
+                'bulkFaq' => __('Libers Suite wrote three to five questions and answers for each one. You see them after the post text.', 'llmo-ready-blog-optimizer'),
+                'viewPost' => __('View post', 'llmo-ready-blog-optimizer'),
+                'reloadLater' => __('Reload this page later. The post keeps running on the server.', 'llmo-ready-blog-optimizer'),
+                /* translators: %s: number of skipped posts. */
+                'skippedCount' => __('%s skipped.', 'llmo-ready-blog-optimizer'),
+                /* translators: %s: number of posts. */
+                'statPosts' => __('%s posts', 'llmo-ready-blog-optimizer'),
+                /* translators: %1$s: number of posts. %2$s: percentage. */
+                'statShare' => __('%1$s posts (%2$s%%)', 'llmo-ready-blog-optimizer'),
+                'scoreLabel' => __('Readability for AI (before optimization)', 'llmo-ready-blog-optimizer'),
+                'scoreTooltip' => __('How well AI systems understand your original text. The questions and answers from the optimization are not included in this number.', 'llmo-ready-blog-optimizer'),
             ),
         );
 
@@ -382,7 +492,7 @@ class LLMO_Blog_Optimizer_Admin {
             <div class="card llmo-connect-card llmo-connect-card--open">
                 <h2 class="llmo-connect-card__title">
                     <span class="dashicons dashicons-admin-links llmo-connect-card__icon llmo-connect-card__icon--open"></span>
-                    <?php esc_html_e('Connect with LLMO Ready', 'llmo-ready-blog-optimizer'); ?>
+                    <?php esc_html_e('Connect with Libers Suite', 'llmo-ready-blog-optimizer'); ?>
                 </h2>
                 <p class="llmo-connect-card__text">
                     <?php esc_html_e('To use the Blog Optimizer, connect your website with your LLMO Ready account. Your website will be automatically analyzed and you will receive an API token.', 'llmo-ready-blog-optimizer'); ?>
@@ -395,10 +505,10 @@ class LLMO_Blog_Optimizer_Admin {
                 <p class="llmo-connect-card__actions">
                     <a href="<?php echo esc_url($connect_url); ?>" class="button button-primary llmo-btn-connect">
                         <span class="dashicons dashicons-admin-links"></span>
-                        <?php esc_html_e('Connect with LLMO Ready', 'llmo-ready-blog-optimizer'); ?>
+                        <?php esc_html_e('Connect with Libers Suite', 'llmo-ready-blog-optimizer'); ?>
                     </a>
                     <a href="<?php echo esc_url($register_url); ?>" class="button button-secondary llmo-btn-register">
-                        <?php esc_html_e('Create free account', 'llmo-ready-blog-optimizer'); ?>
+                        <?php esc_html_e('Create account (7-day trial)', 'llmo-ready-blog-optimizer'); ?>
                     </a>
                 </p>
             </div>
@@ -406,7 +516,7 @@ class LLMO_Blog_Optimizer_Admin {
             <div class="card llmo-connect-card llmo-connect-card--ok">
                 <h2 class="llmo-connect-card__title">
                     <span class="dashicons dashicons-yes-alt llmo-connect-card__icon llmo-connect-card__icon--ok"></span>
-                    <?php esc_html_e('Connected with LLMO Ready', 'llmo-ready-blog-optimizer'); ?>
+                    <?php esc_html_e('Connected with Libers Suite', 'llmo-ready-blog-optimizer'); ?>
                 </h2>
                 <p class="llmo-connect-card__text">
                     <?php esc_html_e('Your website is connected. Blog posts will be automatically optimized with Schema.org markup for better AI visibility.', 'llmo-ready-blog-optimizer'); ?>
@@ -492,7 +602,7 @@ class LLMO_Blog_Optimizer_Admin {
         </label>
         
         <p class="description llmo-consent-desc">
-            <?php esc_html_e('By checking this box, you agree that your post content (title, content, excerpt) will be sent to Libers GmbH via secure HTTPS for AI optimization and analysis.', 'llmo-ready-blog-optimizer'); ?>
+            <?php esc_html_e('By checking this box, you agree that your post title, content, excerpt, URL, publication date, author name and featured image URL will be sent to Libers GmbH via secure HTTPS for AI optimization and analysis.', 'llmo-ready-blog-optimizer'); ?>
         </p>
         
         <p class="description llmo-consent-desc">
@@ -547,6 +657,42 @@ class LLMO_Blog_Optimizer_Admin {
                    <?php checked($auto_optimize, 'yes'); ?>>
             <?php esc_html_e('Automatically optimize posts when published', 'llmo-ready-blog-optimizer'); ?>
         </label>
+        <?php
+    }
+
+    /**
+     * Render the FAQ visibility setting.
+     */
+    public function render_show_faq_field() {
+        $show_faq = get_option('llmo_blog_optimizer_show_faq', 'yes');
+        ?>
+        <label>
+            <input type="hidden" name="llmo_blog_optimizer_show_faq" value="">
+            <input type="checkbox"
+                   name="llmo_blog_optimizer_show_faq"
+                   value="yes"
+                   <?php checked($show_faq, 'yes'); ?>>
+            <?php esc_html_e('Show the questions on the post or page', 'llmo-ready-blog-optimizer'); ?>
+        </label>
+        <p class="description">
+            <?php esc_html_e('The questions are shown on the post or page. You choose whether they appear before or after the text. Search engines only accept FAQ markup for questions and answers that visitors can read on the page. That is why the block is public. If you turn it off, the FAQ markup is left out as well. A shortcode [llmo_faq] in the text still shows the questions.', 'llmo-ready-blog-optimizer'); ?>
+        </p>
+        <p class="description">
+            <?php esc_html_e('If you use Rank Math or Yoast, we add our article details to their markup. Without those plugins we print the article markup ourselves.', 'llmo-ready-blog-optimizer'); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the FAQ position setting.
+     */
+    public function render_faq_position_field() {
+        $position = get_option('llmo_blog_optimizer_faq_position', 'after_content');
+        ?>
+        <select name="llmo_blog_optimizer_faq_position">
+            <option value="before_content" <?php selected($position, 'before_content'); ?>><?php esc_html_e('Before the text', 'llmo-ready-blog-optimizer'); ?></option>
+            <option value="after_content" <?php selected($position, 'after_content'); ?>><?php esc_html_e('After the text', 'llmo-ready-blog-optimizer'); ?></option>
+        </select>
         <?php
     }
     
@@ -639,7 +785,7 @@ class LLMO_Blog_Optimizer_Admin {
         $result = $optimizer->optimize_post($post_id);
         
         if (is_wp_error($result)) {
-            wp_send_json_error(array('message' => $result->get_error_message()));
+            wp_send_json_error($this->optimization_error_payload($result));
         }
         
         wp_send_json_success(array(
@@ -668,10 +814,35 @@ class LLMO_Blog_Optimizer_Admin {
         $result = $optimizer->poll_optimization($post_id);
 
         if (is_wp_error($result)) {
-            wp_send_json_error(array('message' => $result->get_error_message()));
+            wp_send_json_error($this->optimization_error_payload($result));
         }
 
         wp_send_json_success($result);
+    }
+
+    /**
+     * @param WP_Error $result Remote or local optimization error.
+     * @return array{message: string, code?: string, required?: mixed, balance?: mixed}
+     */
+    private function optimization_error_payload($result) {
+        $payload = array(
+            'message' => $result->get_error_message(),
+        );
+        $data = $result->get_error_data();
+        if (!is_array($data)) {
+            return $payload;
+        }
+        if (!empty($data['code'])) {
+            $payload['code'] = $data['code'];
+        }
+        if (array_key_exists('required', $data) && $data['required'] !== null) {
+            $payload['required'] = $data['required'];
+        }
+        if (array_key_exists('balance', $data) && $data['balance'] !== null) {
+            $payload['balance'] = $data['balance'];
+        }
+
+        return $payload;
     }
     
     /**

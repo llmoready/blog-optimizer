@@ -14,6 +14,15 @@ if (!defined('ABSPATH')) {
  * FAQ Shortcode Class
  */
 class LLMO_FAQ_Shortcode {
+
+    /**
+     * Whether the visible FAQ block was printed during this request.
+     */
+    private static $rendered = false;
+
+    public static function was_rendered() {
+        return self::$rendered;
+    }
     
     /**
      * Initialize shortcode
@@ -71,6 +80,7 @@ class LLMO_FAQ_Shortcode {
         }
 
         self::enqueue_assets();
+        self::$rendered = true;
         
         ob_start();
         ?>
@@ -80,20 +90,20 @@ class LLMO_FAQ_Shortcode {
             <?php endif; ?>
             
             <div class="llmo-faq-items">
-                <?php foreach ($faq_data as $index => $item): ?>
+                <?php $visible_index = 0; ?>
+                <?php foreach ($faq_data as $item): ?>
                     <?php if (empty($item['question']) || empty($item['answer'])) continue; ?>
                     
-                    <div class="llmo-faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
-                        <div class="llmo-faq-question" itemprop="name">
+                    <div class="llmo-faq-item<?php echo $visible_index === 0 ? ' active' : ''; ?>">
+                        <div class="llmo-faq-question">
                             <span class="dashicons dashicons-arrow-right-alt2 llmo-faq-icon"></span>
                             <?php echo esc_html($item['question']); ?>
                         </div>
-                        <div class="llmo-faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                            <div itemprop="text">
-                                <?php echo wp_kses_post(wpautop($item['answer'])); ?>
-                            </div>
+                        <div class="llmo-faq-answer">
+                            <?php echo wp_kses_post(wpautop($item['answer'])); ?>
                         </div>
                     </div>
+                    <?php $visible_index++; ?>
                 <?php endforeach; ?>
             </div>
         </div>

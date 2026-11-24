@@ -101,21 +101,22 @@
     font-size: 16px;
 }
 
-.llmo-score {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.llmo-score--high {
-    color: #00a32a;
-}
-
-.llmo-score--mid {
-    color: #ff9800;
-}
-
+.llmo-score,
+.llmo-score--high,
+.llmo-score--mid,
 .llmo-score--low {
-    color: #d63638;
+    color: #1d2327;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.llmo-score-help {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+    color: #646970;
+    cursor: help;
 }
 
 .llmo-meta-actions {
@@ -280,17 +281,51 @@
 }
 
 .llmo-progress-track {
+    display: flex;
     background: #f0f0f0;
     height: 30px;
     border-radius: 5px;
     overflow: hidden;
 }
 
+#llmo-progress-bar,
+#llmo-progress-bar-active {
+    height: 100%;
+    width: 0;
+    flex: 0 0 auto;
+    transition: width 0.3s;
+}
+
 #llmo-progress-bar {
     background: #0073aa;
-    height: 100%;
-    width: 0%;
-    transition: width 0.3s;
+}
+
+#llmo-progress-bar-active {
+    background-color: #0073aa;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.35) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0.35) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+    animation: llmo-progress-stripes 0.8s linear infinite;
+}
+
+@keyframes llmo-progress-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
+}
+
+#llmo-progress-current .spinner,
+.llmo-row-spinner.spinner {
+    float: none;
+    margin: 0 8px 0 0;
+    vertical-align: middle;
 }
 
 #llmo-progress-text {
@@ -324,16 +359,13 @@
     color: #ff9800;
 }
 
-.llmo-bulk-score--high {
-    color: #4caf50;
-}
-
-.llmo-bulk-score--mid {
-    color: #ff9800;
-}
-
+.llmo-bulk-score,
+.llmo-bulk-score--high,
+.llmo-bulk-score--mid,
 .llmo-bulk-score--low {
-    color: #dc3232;
+    color: #1d2327;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .llmo-bulk-score--empty {
