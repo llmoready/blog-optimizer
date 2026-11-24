@@ -196,7 +196,7 @@ msgid "Successfully connected with LLMO Ready!"
 msgstr ""
 
 #: admin/class-llmo-admin.php:458
-msgid "Your website is being analyzed. You can now start optimizing your blog posts."
+msgid "You choose the posts under Bulk Optimizer and start the optimization there."
 msgstr ""
 
 #: admin/class-llmo-admin.php:467
@@ -205,7 +205,7 @@ msgid "Connect with Libers Suite"
 msgstr ""
 
 #: admin/class-llmo-admin.php:470
-msgid "To use the Blog Optimizer, connect your website with your LLMO Ready account. Your website will be automatically analyzed and you will receive an API token."
+msgid "To use the Blog Optimizer, connect your website with your Libers Suite account. You receive an API token. The posts stay as they are until you start the optimization."
 msgstr ""
 
 #: admin/class-llmo-admin.php:473
@@ -228,9 +228,6 @@ msgstr ""
 msgid "Connected with Libers Suite"
 msgstr ""
 
-#: admin/class-llmo-admin.php:494
-msgid "Your website is connected. Blog posts will be automatically optimized with Schema.org markup for better AI visibility."
-msgstr ""
 
 #: admin/class-llmo-admin.php:499
 msgid "Open LLMO Ready Dashboard"

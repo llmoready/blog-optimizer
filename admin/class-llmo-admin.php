@@ -483,7 +483,7 @@ class LLMO_Blog_Optimizer_Admin {
                 <p>
                     <span class="dashicons dashicons-yes-alt llmo-notice-icon-ok"></span>
                     <strong><?php esc_html_e('Successfully connected with LLMO Ready!', 'llmo-ready-blog-optimizer'); ?></strong>
-                    <?php esc_html_e('Your website is being analyzed. You can now start optimizing your blog posts.', 'llmo-ready-blog-optimizer'); ?>
+                    <?php esc_html_e('You choose the posts under Bulk Optimizer and start the optimization there.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
             </div>
             <?php endif; ?>
@@ -495,7 +495,7 @@ class LLMO_Blog_Optimizer_Admin {
                     <?php esc_html_e('Connect with Libers Suite', 'llmo-ready-blog-optimizer'); ?>
                 </h2>
                 <p class="llmo-connect-card__text">
-                    <?php esc_html_e('To use the Blog Optimizer, connect your website with your LLMO Ready account. Your website will be automatically analyzed and you will receive an API token.', 'llmo-ready-blog-optimizer'); ?>
+                    <?php esc_html_e('To use the Blog Optimizer, connect your website with your Libers Suite account. You receive an API token. The posts stay as they are until you start the optimization.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
                 <ol class="llmo-connect-card__steps">
                     <li><?php esc_html_e('Click the button below to open LLMO Ready', 'llmo-ready-blog-optimizer'); ?></li>
@@ -519,7 +519,7 @@ class LLMO_Blog_Optimizer_Admin {
                     <?php esc_html_e('Connected with Libers Suite', 'llmo-ready-blog-optimizer'); ?>
                 </h2>
                 <p class="llmo-connect-card__text">
-                    <?php esc_html_e('Your website is connected. Blog posts will be automatically optimized with Schema.org markup for better AI visibility.', 'llmo-ready-blog-optimizer'); ?>
+                    <?php esc_html_e('Your website is connected. You choose the posts under Bulk Optimizer and start the optimization there.', 'llmo-ready-blog-optimizer'); ?>
                 </p>
                 <p class="llmo-connect-card__actions--ok">
                     <a href="https://app.libers.ai/websites" target="_blank" rel="noopener noreferrer" class="button button-secondary llmo-btn-dashboard">
