@@ -196,9 +196,9 @@ msgstr "Die Optimierung läuft noch. Das Ergebnis erscheint, sobald es fertig is
 msgid "Successfully connected with LLMO Ready!"
 msgstr "Deine Website ist verbunden."
 
-#: admin/class-llmo-admin.php:458
-msgid "You choose the posts under Bulk Optimizer and start the optimization there."
-msgstr "Die Beiträge wählst du unter Beiträge optimieren aus und startest die Optimierung dort."
+#: admin/class-llmo-admin.php:522
+msgid "Your website is connected. You choose the posts under Bulk Optimizer and start the optimization there."
+msgstr "Deine Website ist verbunden. Die Beiträge wählst du unter Beiträge optimieren aus und startest die Optimierung dort."
 
 #: admin/class-llmo-admin.php:467
 #: admin/class-llmo-admin.php:480

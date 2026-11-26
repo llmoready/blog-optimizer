@@ -4,7 +4,7 @@ Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.0.26
+Stable tag: 1.0.27
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -148,6 +148,9 @@ Connecting opens LLMO Ready in the browser and redirects back to your WordPress 
 5. Account registration with a 7-day trial for the WordPress plugin
 
 == Changelog ==
+
+= 1.0.27 =
+* The connected notice is in German.
 
 = 1.0.26 =
 * Re-optimizing a post applies the new questions and answers. The previous result stays until that run is finished.

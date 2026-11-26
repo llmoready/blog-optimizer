@@ -195,8 +195,8 @@ msgstr ""
 msgid "Successfully connected with LLMO Ready!"
 msgstr ""
 
-#: admin/class-llmo-admin.php:458
-msgid "You choose the posts under Bulk Optimizer and start the optimization there."
+#: admin/class-llmo-admin.php:522
+msgid "Your website is connected. You choose the posts under Bulk Optimizer and start the optimization there."
 msgstr ""
 
 #: admin/class-llmo-admin.php:467
