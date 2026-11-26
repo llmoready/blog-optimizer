@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LLMO Ready - Blog Optimizer
  * Description: Automatically adds Schema.org JSON-LD markup with AI-optimized content from LLMO Ready to blog posts for better visibility in generative AI search engines (ChatGPT, Google SGE, Perplexity).
- * Version: 1.0.25
+ * Version: 1.0.26
  * Author: LLMO Ready by Libers GmbH
  * Author URI: https://libers.ai
  * Plugin URI: https://wordpress.org/plugins/llmo-ready-blog-optimizer/
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.25');
+define('LLMO_BLOG_OPTIMIZER_VERSION', '1.0.26');
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LLMO_BLOG_OPTIMIZER_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -367,7 +367,10 @@ class LLMO_Blog_Optimizer {
             return new WP_Error('invalid_post', __('Invalid post ID', 'llmo-ready-blog-optimizer'));
         }
 
-        if (get_post_meta($post_id, '_llmo_optimized', true)) {
+        // A post that is already optimized still has this flag. A new run sets
+        // _llmo_pending. Without that check the poll returns the stored FAQ
+        // and the fresh result never reaches the page.
+        if (get_post_meta($post_id, '_llmo_optimized', true) && !get_post_meta($post_id, '_llmo_pending', true)) {
             return array(
                 'status' => 'done',
                 'score' => get_post_meta($post_id, '_llmo_ai_readiness_score', true),
