@@ -2,9 +2,9 @@
 Contributors: llmoready
 Tags: seo, schema, ai, blog, optimization
 Requires at least: 5.8
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.0.24
+Stable tag: 1.0.25
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -148,6 +148,10 @@ Connecting opens LLMO Ready in the browser and redirects back to your WordPress 
 5. Account registration with a 7-day trial for the WordPress plugin
 
 == Changelog ==
+
+= 1.0.25 =
+* Tested up to WordPress 7.2.
+* Connecting no longer says that posts are optimized automatically. You start the optimization under Bulk Optimizer.
 
 = 1.0.24 =
 * Bulk optimization shows the current post, a progress bar, and a notice on the page.
